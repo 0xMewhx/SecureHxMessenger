@@ -1318,30 +1318,6 @@ async function initiateCall() {
     endCall();
   }
 }
-  
-  // 1. СРАЗУ показываем окно, чтобы пользователь видел отклик
-  showCallModal('Звонок...', 'calling');
-  console.log("Модальное окно звонка должно быть показано.");
-
-  // 2. Устанавливаем состояние
-  state.callState.active = true;
-  state.callState.isCaller = true;
-  
-  try {
-    // 3. Настраиваем WebRTC (включая запрос на микрофон)
-    await setupCallPeerConnection();
-    console.log("setupCallPeerConnection завершен.");
-
-    // 4. Создаем Offer (предложение звонка)
-    await createOffer();
-    console.log("createOffer завершен.");
-
-  } catch (error) {
-    console.error("Ошибка при инициации звонка:", error);
-    showToast('Ошибка звонка: ' + error.message);
-    // Если что-то пошло не так, завершаем звонок
-    endCall();
-  }
 function showCallModal(statusText, mode) {
   const modal = document.getElementById('call-modal');
   const status = document.getElementById('call-status');
