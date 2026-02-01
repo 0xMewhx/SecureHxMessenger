@@ -406,7 +406,7 @@ function updateRoomStatus() {
   
   // Update participants count
   const count = state.peerOnline ? 2 : (state.peerLeft ? 1 : 1);
-  participantsCount.textContent = `\( {count} participant \){count !== 1 ? 's' : ''}`;
+  participantsCount.textContent = `${count} participant ${count !== 1 ? 's' : ''}`;
   
   // Show indicator on mobile
   if (state.isMobile) {
@@ -761,12 +761,12 @@ chatInput.addEventListener('input', () => {
   }
   
   // Set typing status
-  set(ref(db, `rooms/\( {state.roomId}/typing/ \){state.userId}`), true);
+  set(ref(db, `rooms/${state.roomId}/typing/ \){state.userId}`), true);
   
   // Clear after 2 seconds
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {
-    set(ref(db, `rooms/\( {state.roomId}/typing/ \){state.userId}`), false);
+    set(ref(db, `rooms/${state.roomId}/typing/ \){state.userId}`), false);
   }, 2000);
 });
 
@@ -853,7 +853,7 @@ function makeChoice(choice) {
   });
   
   // Send choice to Firebase
-  set(ref(db, `rooms/\( {state.roomId}/game/choice/ \){state.userId}`), {
+  set(ref(db, `rooms/${state.roomId}/game/choice/ \){state.userId}`), {
     choice: choice,
     timestamp: Date.now()
   });
@@ -1021,13 +1021,13 @@ function processRoundResult(choice1, choice2) {
   let resultText = '';
   
   if (winner === 'tie') {
-    resultText = `Ничья! \( {getChoiceName(player1Choice)} = \){getChoiceName(player2Choice)}`;
+    resultText = `Ничья! ${getChoiceName(player1Choice)} = \){getChoiceName(player2Choice)}`;
   } else if (winner === 'player1') {
     state.gameState.myScore++;
-    resultText = `Вы выиграли раунд! \( {getChoiceName(player1Choice)} побеждает \){getChoiceName(player2Choice)}`;
+    resultText = `Вы выиграли раунд! ${getChoiceName(player1Choice)} побеждает \){getChoiceName(player2Choice)}`;
   } else {
     state.gameState.opponentScore++;
-    resultText = `Вы проиграли раунд! \( {getChoiceName(player2Choice)} побеждает \){getChoiceName(player1Choice)}`;
+    resultText = `Вы проиграли раунд! ${getChoiceName(player2Choice)} побеждает \){getChoiceName(player1Choice)}`;
   }
   
   updateGameUI();
@@ -1069,12 +1069,12 @@ function endGame() {
   let finalResult = '';
   
   if (state.gameState.myScore > state.gameState.opponentScore) {
-    finalResult = `🎉 Поздравляем! Вы выиграли игру \( {state.gameState.myScore}: \){state.gameState.opponentScore}!`;
+    finalResult = `🎉 Поздравляем! Вы выиграли игру ${state.gameState.myScore}: \){state.gameState.opponentScore}!`;
     createConfetti(100);
   } else if (state.gameState.myScore < state.gameState.opponentScore) {
-    finalResult = `😔 Вы проиграли игру \( {state.gameState.myScore}: \){state.gameState.opponentScore}.`;
+    finalResult = `😔 Вы проиграли игру ${state.gameState.myScore}: \){state.gameState.opponentScore}.`;
   } else {
-    finalResult = `🤝 Ничья! \( {state.gameState.myScore}: \){state.gameState.opponentScore}`;
+    finalResult = `🤝 Ничья! ${state.gameState.myScore}: \){state.gameState.opponentScore}`;
   }
   
   showGameModal(finalResult, 'result');
@@ -1332,11 +1332,11 @@ function setupOnlineStatusTracking() {
   const userPath = state.isHost ? 'host' : 'guest';
   
   // Track my own online status
-  onDisconnect(ref(db, `rooms/\( {state.roomId}/ \){userPath}/online`)).set(false);
+  onDisconnect(ref(db, `rooms/${state.roomId}/ ${userPath}/online`)).set(false);
   
   // Track peer online status
   const peerPath = state.isHost ? 'guest' : 'host';
-  onValue(ref(db, `rooms/\( {state.roomId}/ \){peerPath}/online`), (snapshot) => {
+  onValue(ref(db, `rooms/${state.roomId}/ ${peerPath}/online`), (snapshot) => {
     const isOnline = snapshot.val() !== false;
     state.peerOnline = isOnline;
     state.peerLeft = !isOnline;
@@ -1407,7 +1407,7 @@ function setupVoicePlayer(playerId) {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `\( {mins}: \){secs.toString().padStart(2, '0')}`;
+    return `${mins}: ${secs.toString().padStart(2, '0')}`;
   };
   
   // Update waveform animation
@@ -1493,7 +1493,7 @@ async function sendMessage() {
   
   try {
     // Clear typing indicator immediately
-    await set(ref(db, `rooms/\( {state.roomId}/typing/ \){state.userId}`), false);
+    await set(ref(db, `rooms/${state.roomId}/typing/ ${state.userId}`), false);
     
     const encrypted = encryptMessage(text);
     
@@ -1574,7 +1574,7 @@ function startCallTimer() {
     state.callState.timeElapsed++;
     const mins = Math.floor(state.callState.timeElapsed / 60).toString().padStart(2, '0');
     const secs = (state.callState.timeElapsed % 60).toString().padStart(2, '0');
-    timerEl.textContent = `\( {mins}: \){secs}`;
+    timerEl.textContent = `${mins}: ${secs}`;
   }, 1000);
 }
 
@@ -2012,7 +2012,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('beforeunload', () => {
     if (state.roomId) {
       const userPath = state.isHost ? 'host' : 'guest';
-      set(ref(db, `rooms/\( {state.roomId}/ \){userPath}/online`), false);
+      set(ref(db, `rooms/${state.roomId}/ \){userPath}/online`), false);
     }
     if (state.callState.active) {
       endCall();
