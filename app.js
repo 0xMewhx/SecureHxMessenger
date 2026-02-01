@@ -1495,6 +1495,7 @@ async function createAnswer() {
   try {
     const answer = await state.callState.pc.createAnswer();
     await state.callState.pc.setLocalDescription(answer);
+
     await set(ref(db, `rooms/${state.roomId}/call/answer`), {
       type: answer.type,
       sdp: answer.sdp
@@ -1504,30 +1505,6 @@ async function createAnswer() {
     console.error('Ошибка создания answer:', err);
   }
 }
-async function createAnswer() {
-  if (!state.callState.pc) return;
-
-  try {
-    // Создаем answer
-    const answer = await state.callState.pc.createAnswer();
-    // Устанавливаем его как локальное описание
-    await state.callState.pc.setLocalDescription(answer);
-
-    // Создаем объект для отправки
-    const answerData = {
-      type: answer.type,
-      sdp: answer.sdp
-    };
-    
-    // Отправляем answer в базу
-    await set(ref(db, `rooms/${state.roomId}/call/answer`), answerData);
-    console.log("Answer успешно отправлен в Firebase.");
-
-  } catch (err) {
-    console.error('Ошибка создания answer:', err);
-  }
-}
-
 window.acceptCall = function() {
   if (!state.callState.pc) {
     setupCallPeerConnection(); // Убеждаемся, что pc и трек готовы
