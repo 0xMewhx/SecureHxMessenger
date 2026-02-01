@@ -14,6 +14,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const PeerConnection = window.RTCPeerConnection;
+const SessionDescription = window.RTCSessionDescription;
+const IceCandidate = window.RTCIceCandidate;
 window.RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
 window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription;
 window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate || window.webkitRTCIceCandidate;
@@ -1390,7 +1393,7 @@ function setupCallListeners() {
 }
 
 function setupCallPeerConnection() {
-  const pc = new RTCPeerConnection({
+  const pc = new PeerConnection({
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun.stunprotocol.org:3478' }
