@@ -1289,11 +1289,35 @@ async function createOffer() {
   }
 }
 async function initiateCall() {
-  // Проверяем, не идет ли уже звонок
   if (state.callState.active) {
     showToast('Звонок уже идёт!');
     return;
   }
+
+  showCallModal('Звонок...', 'calling');
+  console.log("Модальное окно звонка должно быть показано.");
+
+  state.callState.active = true;
+  state.callState.isCaller = true;
+
+  try {
+    await setupCallPeerConnection();
+    console.log("setupCallPeerConnection завершен.");
+
+    // Запрос микрофона для caller (от клика на кнопку звонка — gesture есть)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.callState.localStream = stream;
+    stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
+    console.log('✅ Локальный поток добавлен (caller)');
+
+    await createOffer();
+    console.log("createOffer завершен.");
+  } catch (error) {
+    console.error("Ошибка при инициации звонка:", error);
+    showToast('Ошибка звонка: ' + (error.message || 'Неизвестно'));
+    endCall();
+  }
+}
   
   // 1. СРАЗУ показываем окно, чтобы пользователь видел отклик
   showCallModal('Звонок...', 'calling');
@@ -1431,7 +1455,6 @@ function setupCallPeerConnection() {
   });
   state.callState.pc = pc;
 
-  // Логи ICE и connection
   pc.oniceconnectionstatechange = () => {
     console.log('ICE connection:', pc.iceConnectionState);
   };
@@ -1446,7 +1469,6 @@ function setupCallPeerConnection() {
     }
   };
 
-  // ontrack — один, слитый, с улучшенным play
   pc.ontrack = (event) => {
     console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
     console.log('📡 Получен удаленный трек:', {
@@ -1456,7 +1478,6 @@ function setupCallPeerConnection() {
       readyState: event.track.readyState,
       id: event.track.id
     });
-
     if (!state.callState.remoteStream) {
       state.callState.remoteStream = new MediaStream();
     }
@@ -1470,15 +1491,9 @@ function setupCallPeerConnection() {
       remoteAudio.style.display = 'none';
       document.body.appendChild(remoteAudio);
     }
-
     remoteAudio.srcObject = state.callState.remoteStream;
 
-    // Пробуем играть сразу + ждём клик/тап если заблокировано
-    const tryPlay = () => {
-      remoteAudio.play()
-        .then(() => console.log('🔊 Звук пошёл!'))
-        .catch(e => console.warn('Автоплей заблокирован:', e));
-    };
+    const tryPlay = () => remoteAudio.play().catch(e => console.warn('Автоплей:', e));
     tryPlay();
     document.addEventListener('click', tryPlay, { once: true });
     document.addEventListener('touchstart', tryPlay, { once: true });
@@ -1492,23 +1507,7 @@ function setupCallPeerConnection() {
     }
   };
 
-  // НЕ запрашиваем микрофон здесь автоматически!
-  // Для звонящего (caller) — оставляем запрос здесь
-  // Для принимающего (callee) — перенесём в acceptCall
-  if (state.callState.isCaller) {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        state.callState.localStream = stream;
-        stream.getTracks().forEach(track => pc.addTrack(track, stream));
-        console.log('✅ Локальный поток добавлен (caller)');
-      })
-      .catch(err => {
-        console.error('Микрофон caller:', err);
-        showToast('Нет микрофона у звонящего');
-        endCall();
-      });
-  }
-  // Для callee — микрофон запросим в acceptCall после клика "✅"
+  // НЕ добавляем микрофон здесь! Переносим в caller и callee отдельно
 }
 async function createAnswer() {
   if (!state.callState.pc) return;
@@ -1539,21 +1538,20 @@ window.acceptCall = function() {
     setupCallPeerConnection();
   }
 
-  // Запрашиваем микрофон ОТ КЛИКА — браузер разрешит
+  // Запрос микрофона от клика "✅" — браузер разрешит
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       state.callState.localStream = stream;
       stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
-      console.log('✅ Локальный поток добавлен на callee (от клика ✅)');
+      console.log('✅ Локальный поток добавлен (callee от клика)');
     })
     .catch(err => {
-      console.error('Микрофон на принимающей стороне:', err);
+      console.error('Микрофон callee:', err);
       showToast('Нет доступа к микрофону');
       endCall();
       return;
     });
 
-  // Отправляем согласие
   set(ref(db, `rooms/${state.roomId}/call/response`), {
     from: state.userId,
     accepted: true,
@@ -1562,7 +1560,6 @@ window.acceptCall = function() {
 
   showCallModal('Звонок в процессе', 'ongoing');
 }
-
 window.declineCall = function() {
   // Просто завершаем звонок. endCall сама всё почистит в Firebase.
   endCall();
