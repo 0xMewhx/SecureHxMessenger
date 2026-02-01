@@ -1462,7 +1462,8 @@ function setupCallPeerConnection() {
       document.body.appendChild(remoteAudio);
     }
     remoteAudio.srcObject = state.callState.remoteStream;
-
+    remoteAudio.muted = false; // ПРИНУДИТЕЛЬНО снимаем мут с элемента
+    remoteAudio.volume = 1.0;  // Выкручиваем громкость
     const tryPlay = () => remoteAudio.play().catch(e => console.warn('Автоплей:', e));
     tryPlay();
     document.addEventListener('click', tryPlay, { once: true });
