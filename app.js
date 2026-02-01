@@ -1394,7 +1394,8 @@ function setupCallListeners() {
 }
 
 function setupCallPeerConnection() {
-  const pc = new PeerConnection({
+  // 1. Инициализируем соединение
+  const pc = new RTCPeerConnection({ // Используй RTCPeerConnection (стандарт)
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun.stunprotocol.org:3478' }
@@ -1403,11 +1404,12 @@ function setupCallPeerConnection() {
   
   state.callState.pc = pc;
   
-  // Получаем доступ к микрофону
+  // 2. Получаем доступ к микрофону и СРАЗУ добавляем треки
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       state.callState.localStream = stream;
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
+      console.log('✅ Локальный поток добавлен');
     })
     .catch(err => {
       console.error('Ошибка доступа к микрофону:', err);
@@ -1415,57 +1417,57 @@ function setupCallPeerConnection() {
       endCall();
     });
   
-  // Когда приходит аудиопоток от собеседника
+  // 3. Обработка входящего звука
   pc.ontrack = (event) => {
-    // 1. Создаем или обновляем удаленный поток
+    console.log('📡 Получен удаленный трек:', event.track.kind);
+    
     if (!state.callState.remoteStream) {
-      state.callState.remoteStream = new MediaStream();
+        state.callState.remoteStream = new MediaStream();
     }
     state.callState.remoteStream.addTrack(event.track);
 
-    // 2. ГЛАВНОЕ: Привязываем и проигрываем
-    // Ищем уже существующий аудиоэлемент или создаем его
-    let remoteAudio = document.getElementById('remote-audio');
+    // Используем один ID для всех случаев
+    let remoteAudio = document.getElementById('remoteAudio');
+    
     if (!remoteAudio) {
         remoteAudio = document.createElement('audio');
-        remoteAudio.id = 'remote-audio';
+        remoteAudio.id = 'remoteAudio';
         remoteAudio.autoplay = true;
-        remoteAudio.style.display = 'none'; // Скрываем его
+        // remoteAudio.controls = true; // Раскомментируй для теста, чтобы увидеть плеер
+        remoteAudio.style.display = 'none'; 
         document.body.appendChild(remoteAudio);
     }
 
-    // Привязываем поток
     remoteAudio.srcObject = state.callState.remoteStream;
-    
-    // Пробуем проиграть, это может быть заблокировано браузером
+
+    // Пытаемся запустить звук
     remoteAudio.play()
-        .then(() => console.log('✅ Удаленный аудиопоток запущен!'))
-        .catch(err => {
-            console.error('❌ Ошибка воспроизведения аудио (заблокировано?):', err);
-            showToast('⚠️ Звук заблокирован браузером. Нажмите на экран для разблокировки.', 5000);
+        .then(() => console.log('🔊 Звук пошел!'))
+        .catch(e => {
+            console.warn("🔇 Блок автоплея! Нужно нажать на страницу.", e);
+            showToast('Нажми на экран, чтобы услышать собеседника');
         });
-};
-  
-  // ИСПРАВЛЕНИЕ: Отправляем каждого кандидата, не перезаписывая старые
-pc.onicecandidate = (event) => {
-  if (event.candidate) {
-    // Отправляем каждого кандидата в Firebase в свой список
-    const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
-    set(candidateRef, { ...event.candidate.toJSON(), from: state.userId });
+  };
+
+  // 4. Отправка ICE-кандидатов (Твой исправленный push)
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
+      set(candidateRef, { ...event.candidate.toJSON(), from: state.userId });
     }
   };
   
+  // 5. Мониторинг состояния
   pc.onconnectionstatechange = () => {
+    console.log('🔗 Статус соединения:', pc.connectionState);
     if (pc.connectionState === 'connected') {
-        // Когда соединение установлено, можно показать это в интерфейсе
         showCallModal('Звонок в процессе', 'ongoing');
     }
-    if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
-      endCall();
+    if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
+        endCall();
     }
   };
 }
-
 async function createOffer() {
   if (!state.callState.pc) return;
 
