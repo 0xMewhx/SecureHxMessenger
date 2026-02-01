@@ -1342,9 +1342,6 @@ async function initiateCall() {
     // Если что-то пошло не так, завершаем звонок
     endCall();
   }
-}
-
-
 function showCallModal(statusText, mode) {
   const modal = document.getElementById('call-modal');
   const status = document.getElementById('call-status');
