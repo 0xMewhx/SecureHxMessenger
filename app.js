@@ -1416,15 +1416,34 @@ function setupCallPeerConnection() {
   
   // Когда приходит аудиопоток от собеседника
   pc.ontrack = (event) => {
+    // 1. Создаем или обновляем удаленный поток
     if (!state.callState.remoteStream) {
       state.callState.remoteStream = new MediaStream();
     }
     state.callState.remoteStream.addTrack(event.track);
+
+    // 2. ГЛАВНОЕ: Привязываем и проигрываем
+    // Ищем уже существующий аудиоэлемент или создаем его
+    let remoteAudio = document.getElementById('remote-audio');
+    if (!remoteAudio) {
+        remoteAudio = document.createElement('audio');
+        remoteAudio.id = 'remote-audio';
+        remoteAudio.autoplay = true;
+        remoteAudio.style.display = 'none'; // Скрываем его
+        document.body.appendChild(remoteAudio);
+    }
+
+    // Привязываем поток
+    remoteAudio.srcObject = state.callState.remoteStream;
     
-    const audio = new Audio();
-    audio.srcObject = state.callState.remoteStream;
-    audio.play().catch(err => console.error('Ошибка воспроизведения аудио:', err));
-  };
+    // Пробуем проиграть, это может быть заблокировано браузером
+    remoteAudio.play()
+        .then(() => console.log('✅ Удаленный аудиопоток запущен!'))
+        .catch(err => {
+            console.error('❌ Ошибка воспроизведения аудио (заблокировано?):', err);
+            showToast('⚠️ Звук заблокирован браузером. Нажмите на экран для разблокировки.', 5000);
+        });
+};
   
   // ИСПРАВЛЕНИЕ: Отправляем каждого кандидата, не перезаписывая старые
 pc.onicecandidate = (event) => {
