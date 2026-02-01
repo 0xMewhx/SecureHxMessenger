@@ -1410,6 +1410,17 @@ iceServers: [
   }
 ]
   });
+  pc.oniceconnectionstatechange = () => {
+  console.log('ICE connection:', pc.iceConnectionState);  // должен дойти до connected
+};
+
+pc.onconnectionstatechange = () => {
+  console.log('Peer connection state:', pc.connectionState);  // connected / failed и т.д.
+};
+
+pc.ontrack = (event) => {
+  console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
+};
   
   state.callState.pc = pc;
   
