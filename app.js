@@ -1345,50 +1345,51 @@ function closeCallModal() {
     clearInterval(state.callState.callTimer);
   }
 }
-
 function setupCallListeners() {
   const callRef = ref(db, `rooms/${state.roomId}/call`);
 
+  // 1. Основной слушатель для Offer/Answer
   onValue(callRef, async (snapshot) => {
-    // Если данных о звонке нет, а у нас он активен - завершаем.
-    // Это срабатывает, когда собеседник вешает трубку.
-    if (!snapshot.exists() && (state.callState.active || state.callState.pc)) {
-      showToast('Звонок завершён');
-      endCall();
+    if (!snapshot.exists()) {
+      if (state.callState.active || state.callState.pc) {
+        showToast('Звонок завершён');
+        endCall();
+      }
       return;
     }
-    if (!snapshot.exists()) return;
 
     const callData = snapshot.val();
-    const pc = state.callState.pc;
 
-    // --- Логика для ПРИНИМАЮЩЕГО ---
-    // Если есть offer и мы еще не в звонке
-    if (callData.offer && !state.callState.isCaller && !pc) {
-      // Показываем окно входящего звонка
+    // ПРИНИМАЮЩИЙ: Ловим Offer
+    if (callData.offer && !state.callState.isCaller && !state.callState.pc) {
       showCallModal('Входящий звонок', 'incoming');
-      // Принимающий настраивает свое соединение
       await setupCallPeerConnection();
-      // Устанавливаем полученный offer
       await state.callState.pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
-      // И создаем ответ
       await createAnswer();
     }
     
-    // --- Логика для ЗВОНЯЩЕГО ---
-    // Если появился answer и мы звонящий
-    if (callData.answer && state.callState.isCaller && pc.signalingState !== 'stable') {
-      await pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
+    // ЗВОНЯЩИЙ: Ловим Answer
+    if (callData.answer && state.callState.isCaller && state.callState.pc && state.callState.pc.signalingState !== 'stable') {
+      await state.callState.pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
     }
+  });
 
-    // Обмен ICE-кандидатами для обоих
-    if (callData.candidates) {
-      Object.values(callData.candidates).forEach(candidate => {
+  // 2. ОТДЕЛЬНЫЙ слушатель для кандидатов (чтобы не терять их)
+  const candidatesRef = ref(db, `rooms/${state.roomId}/call/candidates`);
+  onChildAdded(candidatesRef, (snapshot) => {
+    const candidate = snapshot.val();
+    
+    // Важно: ждем, пока pc создастся, если кандидат прилетел слишком быстро
+    const checkAndAdd = setInterval(() => {
+      const pc = state.callState.pc;
+      if (pc && pc.remoteDescription && pc.remoteDescription.type) {
         if (candidate.from !== state.userId) {
-          pc.addIceCandidate(new RTCIceCandidate(candidate));
+          pc.addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(e => console.warn("ICE error:", e));
         }
-      });
-    }
+        clearInterval(checkAndAdd);
+      }
+    }, 500); // проверяем каждые полсекунды, готов ли пир
   });
 }
 
