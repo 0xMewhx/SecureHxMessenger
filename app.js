@@ -1388,7 +1388,7 @@ function setupCallListeners() {
 }
 
 function setupCallPeerConnection() {
-  const pc = new RTCPeerConnection({
+  const pc = new window.RTCPeerConnection({
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun.stunprotocol.org:3478' }
