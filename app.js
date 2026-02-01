@@ -1267,7 +1267,27 @@ callBtn.addEventListener('click', () => {
   
   initiateCall();
 });
+async function createOffer() {
+  if (!state.callState.pc) return;
 
+  try {
+    const offer = await state.callState.pc.createOffer();
+    await state.callState.pc.setLocalDescription(offer);
+
+    const roomCallData = {
+      offer: {
+        type: offer.type,
+        sdp: offer.sdp
+      },
+      from: state.userId
+    };
+
+    await set(ref(db, `rooms/${state.roomId}/call`), roomCallData);
+    console.log("Offer успешно отправлен в Firebase.");
+  } catch (err) {
+    console.error('Ошибка создания offer:', err);
+  }
+}
 async function initiateCall() {
   // Проверяем, не идет ли уже звонок
   if (state.callState.active) {
@@ -1299,6 +1319,7 @@ async function initiateCall() {
     endCall();
   }
 }
+
 
 function showCallModal(statusText, mode) {
   const modal = document.getElementById('call-modal');
