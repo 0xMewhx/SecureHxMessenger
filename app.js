@@ -1266,16 +1266,19 @@ callBtn.addEventListener('click', () => {
 function initiateCall() {
   state.callState.active = true;
   state.callState.isCaller = true;
-  showCallModal('Звонок...', 'calling');
   
-  // Send call request
+  // Сразу настраиваем WebRTC соединение
+  setupCallPeerConnection();
+
+  // Отправляем запрос в базу
   set(ref(db, `rooms/${state.roomId}/call/request`), {
     from: state.userId,
     timestamp: Date.now()
+  }).then(() => {
+    // После отправки запроса, создаем Offer (предложение звонка)
+    createOffer();
+    showCallModal('Звонок...', 'calling');
   });
-  
-  setupCallPeerConnection();
-  createOffer();
 }
 
 function showCallModal(statusText, mode) {
@@ -1325,66 +1328,59 @@ function closeCallModal() {
 }
 
 function setupCallListeners() {
-  // Listen for incoming call requests
-  onValue(ref(db, `rooms/${state.roomId}/call/request`), (snapshot) => {
-    if (snapshot.exists() && !state.callState.active) {
-      const request = snapshot.val();
-      if (request.from !== state.userId) {
-        state.callState.active = true;
-        state.callState.isCaller = false;
-        showCallModal('Входящий звонок', 'incoming');
-        setupCallPeerConnection();
-      }
-    }
-  });
-  
-  // Listen for call responses
-  onValue(ref(db, `rooms/${state.roomId}/call/response`), (snapshot) => {
-    if (snapshot.exists()) {
-      const response = snapshot.val();
-      if (response.from !== state.userId) {
-        if (response.accepted) {
-          // Call accepted
-          showCallModal('Звонок в процессе', 'ongoing');
-        } else {
-          // Call declined
-          endCall();
-          showToast('Звонок отклонён');
-        }
-      }
-    }
-  });
-  
-  // Listen for WebRTC signaling
-  onValue(ref(db, `rooms/${state.roomId}/call/offer`), (snapshot) => {
-    if (snapshot.exists() && !state.callState.isCaller) {
-      const offer = snapshot.val();
-      state.callState.pc.setRemoteDescription(new RTCSessionDescription(offer));
-      createAnswer();
-    }
-  });
-  
-  onValue(ref(db, `rooms/${state.roomId}/call/answer`), (snapshot) => {
-    if (snapshot.exists() && state.callState.isCaller) {
-      const answer = snapshot.val();
-      state.callState.pc.setRemoteDescription(new RTCSessionDescription(answer));
-    }
-  });
-  
-  onValue(ref(db, `rooms/${state.roomId}/call/candidate`), (snapshot) => {
-    if (snapshot.exists()) {
-      const candidate = snapshot.val();
-      if (candidate.candidate) {  // Проверяем наличие candidate
-        state.callState.pc.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-    }
-  });
-  
-  // Listen for call end
-  onValue(ref(db, `rooms/${state.roomId}/call/end`), (snapshot) => {
-    if (snapshot.exists()) {
-      endCall();
+  const callRef = ref(db, `rooms/${state.roomId}/call`);
+
+  onValue(callRef, (snapshot) => {
+    // Если ветка /call была удалена, значит собеседник повесил трубку.
+    if (!snapshot.exists() && (state.callState.active || state.callState.pc)) {
       showToast('Звонок завершён');
+      endCall();
+      return;
+    }
+
+    if (!snapshot.exists()) return;
+
+    const callData = snapshot.val();
+
+    // 1. Для принимающего: получили запрос на звонок
+    if (callData.request && callData.request.from !== state.userId && !state.callState.active) {
+      state.callState.active = true;
+      state.callState.isCaller = false;
+      showCallModal('Входящий звонок', 'incoming');
+      setupCallPeerConnection();
+    }
+    
+    // 2. Для звонящего: получили ответ на наш звонок
+    if (callData.response && callData.response.from !== state.userId && state.callState.isCaller) {
+      if (!callData.response.accepted) {
+        showToast('Звонок отклонён');
+        endCall();
+      }
+    }
+    
+    // 3. Обмен WebRTC сигналами
+    const pc = state.callState.pc;
+    if (!pc) return; // Если соединение не создано, выходим
+
+    // Принимающий получает Offer и создает Answer
+    if (callData.offer && !state.callState.isCaller && pc.signalingState === 'have-local-offer') {
+       pc.setRemoteDescription(new RTCSessionDescription(callData.offer)).then(createAnswer);
+    }
+    
+    // Звонящий получает Answer
+    if (callData.answer && state.callState.isCaller && pc.signalingState === 'have-remote-offer') {
+      pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
+    }
+  });
+
+  // Отдельно слушаем ICE-кандидатов от собеседника
+  const peerId = state.isHost ? 'guest' : 'host'; // Предполагается, что ID собеседника можно определить так
+  const peerCandidatesRef = ref(db, `rooms/${state.roomId}/call/candidates/${peerId}`);
+  onValue(peerCandidatesRef, (snapshot) => {
+    if (snapshot.exists() && state.callState.pc) {
+      snapshot.forEach((childSnapshot) => {
+        state.callState.pc.addIceCandidate(new RTCIceCandidate(childSnapshot.val()));
+      });
     }
   });
 }
@@ -1399,7 +1395,7 @@ function setupCallPeerConnection() {
   
   state.callState.pc = pc;
   
-  // Get local audio stream
+  // Получаем доступ к микрофону
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       state.callState.localStream = stream;
@@ -1411,30 +1407,33 @@ function setupCallPeerConnection() {
       endCall();
     });
   
+  // Когда приходит аудиопоток от собеседника
   pc.ontrack = (event) => {
     if (!state.callState.remoteStream) {
       state.callState.remoteStream = new MediaStream();
     }
     state.callState.remoteStream.addTrack(event.track);
     
-    // Auto-play remote audio
     const audio = new Audio();
     audio.srcObject = state.callState.remoteStream;
     audio.play().catch(err => console.error('Ошибка воспроизведения аудио:', err));
   };
   
+  // ИСПРАВЛЕНИЕ: Отправляем каждого кандидата, не перезаписывая старые
   pc.onicecandidate = (event) => {
     if (event.candidate) {
-      set(ref(db, `rooms/${state.roomId}/call/candidate`), {
-        candidate: event.candidate.candidate,
-        sdpMid: event.candidate.sdpMid,
-        sdpMLineIndex: event.candidate.sdpMLineIndex
-      });
+      // Добавляем кандидата в список в Firebase
+      const candidatesRef = ref(db, `rooms/${state.roomId}/call/candidates/${state.userId}`);
+      push(candidatesRef, event.candidate.toJSON());
     }
   };
   
-  pc.oniceconnectionstatechange = () => {
-    if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') {
+        // Когда соединение установлено, можно показать это в интерфейсе
+        showCallModal('Звонок в процессе', 'ongoing');
+    }
+    if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
       endCall();
     }
   };
@@ -1459,28 +1458,27 @@ function createAnswer() {
 }
 
 window.acceptCall = function() {
-  // Send acceptance
+  // Отправляем ответ, что мы приняли звонок
   set(ref(db, `rooms/${state.roomId}/call/response`), {
     from: state.userId,
     accepted: true,
     timestamp: Date.now()
   });
   
+  // Показываем у себя окно активного звонка
   showCallModal('Звонок в процессе', 'ongoing');
 }
 
 window.declineCall = function() {
-  // Send decline
-  set(ref(db, `rooms/${state.roomId}/call/response`), {
-    from: state.userId,
-    accepted: false,
-    timestamp: Date.now()
-  });
-  
+  // Просто завершаем звонок. endCall сама всё почистит в Firebase.
   endCall();
 }
 
 window.endCall = function() {
+  if (!state.callState.active && !state.callState.pc) return; // Если уже завершено, ничего не делаем
+
+  console.log('Завершение звонка...');
+
   if (state.callState.pc) {
     state.callState.pc.close();
     state.callState.pc = null;
@@ -1491,20 +1489,20 @@ window.endCall = function() {
     state.callState.localStream = null;
   }
   
+  if (state.callState.callTimer) {
+    clearInterval(state.callState.callTimer);
+  }
+  
   state.callState.remoteStream = null;
   state.callState.active = false;
   state.callState.isCaller = false;
   
   closeCallModal();
   
-  // Clear call data in Firebase
+  // ГЛАВНОЕ ИЗМЕНЕНИЕ: Просто удаляем всю ветку /call в Firebase.
+  // Другой клиент увидит, что она пропала, и тоже завершит звонок.
+  // Это самый надежный способ.
   set(ref(db, `rooms/${state.roomId}/call`), null);
-  
-  // Send end signal
-  set(ref(db, `rooms/${state.roomId}/call/end`), {
-    from: state.userId,
-    timestamp: Date.now()
-  });
 }
 
 // ============ MANUAL KEY GEN ============
