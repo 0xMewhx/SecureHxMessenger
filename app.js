@@ -1412,23 +1412,14 @@ function setupCallListeners() {
 }
 function setupCallPeerConnection() {
   const pc = new RTCPeerConnection({
-   iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
+  iceServers: [
     {
-      // Это бесплатный TURN сервер от Stunify (или используй OpenRelay, если он ожил)
-      urls: 'turn:openrelay.metered.ca:80',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
+      urls: 'stun:144.31.247.35:3478'
     },
     {
-      urls: 'turn:openrelay.metered.ca:443',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
-    },
-    {
-      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-      username: 'openrelayproject',
-      credential: 'openrelayproject'
+      urls: 'turn:144.31.247.35:3478',
+      username: 'mew',
+      credential: 'FuCkiNgASShole'
     }
   ]
   });
