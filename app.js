@@ -1394,37 +1394,81 @@ function setupCallListeners() {
 }
 
 function setupCallPeerConnection() {
-  // 1. Инициализируем соединение
-  const pc = new RTCPeerConnection({ // Используй RTCPeerConnection (стандарт)
-iceServers: [
-  { urls: 'stun:stun.l.google.com:19302' },
-  {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelayproject',
-    credential: 'openrelayproject'
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:443',
-    username: 'openrelayproject',
-    credential: 'openrelayproject'
-  }
-]
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
   });
-  pc.oniceconnectionstatechange = () => {
-  console.log('ICE connection:', pc.iceConnectionState);  // должен дойти до connected
-};
-
-pc.onconnectionstatechange = () => {
-  console.log('Peer connection state:', pc.connectionState);  // connected / failed и т.д.
-};
-
-pc.ontrack = (event) => {
-  console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
-};
-  
   state.callState.pc = pc;
-  
-  // 2. Получаем доступ к микрофону и СРАЗУ добавляем треки
+
+  // Логи ICE и connection (твои)
+  pc.oniceconnectionstatechange = () => {
+    console.log('ICE connection:', pc.iceConnectionState);
+  };
+
+  pc.onconnectionstatechange = () => {
+    console.log('Peer connection state:', pc.connectionState);
+    if (pc.connectionState === 'connected') {
+      showCallModal('Звонок в процессе', 'ongoing');
+    }
+    if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
+      endCall();
+    }
+  };
+
+  // Слитый ontrack (без дубликата)
+  pc.ontrack = (event) => {
+    console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
+    console.log('📡 Получен удаленный трек:', {
+      kind: event.track.kind,
+      enabled: event.track.enabled,
+      muted: event.track.muted,
+      readyState: event.track.readyState,
+      id: event.track.id
+    });
+
+    if (!state.callState.remoteStream) {
+      state.callState.remoteStream = new MediaStream();
+    }
+    state.callState.remoteStream.addTrack(event.track);
+
+    let remoteAudio = document.getElementById('remoteAudio');
+    if (!remoteAudio) {
+      remoteAudio = document.createElement('audio');
+      remoteAudio.id = 'remoteAudio';
+      remoteAudio.autoplay = true;
+      remoteAudio.style.display = 'none';
+      document.body.appendChild(remoteAudio);
+    }
+    remoteAudio.srcObject = state.callState.remoteStream;
+
+    // Улучшенный play с ожиданием user gesture
+    const playAudio = () => remoteAudio.play().catch(e => console.error('play failed', e));
+    playAudio(); // Пробуем сразу
+    document.addEventListener('click', playAudio, { once: true }); // Если блок, ждём клика
+    document.addEventListener('touchstart', playAudio, { once: true });
+    showToast('Нажми на экран, если звук не пошёл');
+  };
+
+  // onicecandidate (твой)
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
+      set(candidateRef, { ...event.candidate.toJSON(), from: state.userId });
+    }
+  };
+
+  // getUserMedia и addTrack (твой)
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
       state.callState.localStream = stream;
@@ -1436,82 +1480,28 @@ pc.ontrack = (event) => {
       showToast('Ошибка: нет доступа к микрофону');
       endCall();
     });
-  
-  // 3. Обработка входящего звука
-  pc.ontrack = (event) => {
-    console.log('📡 Получен удаленный трек:', event.track.kind);
-    
-    if (!state.callState.remoteStream) {
-        state.callState.remoteStream = new MediaStream();
-    }
-    state.callState.remoteStream.addTrack(event.track);
-
-    // Используем один ID для всех случаев
-    let remoteAudio = document.getElementById('remoteAudio');
-    
-    if (!remoteAudio) {
-        remoteAudio = document.createElement('audio');
-        remoteAudio.id = 'remoteAudio';
-        remoteAudio.autoplay = true;
-        // remoteAudio.controls = true; // Раскомментируй для теста, чтобы увидеть плеер
-        remoteAudio.style.display = 'none'; 
-        document.body.appendChild(remoteAudio);
-    }
-
-    remoteAudio.srcObject = state.callState.remoteStream;
-
-    // Пытаемся запустить звук
-    remoteAudio.play()
-        .then(() => console.log('🔊 Звук пошел!'))
-        .catch(e => {
-            console.warn("🔇 Блок автоплея! Нужно нажать на страницу.", e);
-            showToast('Нажми на экран, чтобы услышать собеседника');
-        });
-  };
-
-  // 4. Отправка ICE-кандидатов (Твой исправленный push)
-  pc.onicecandidate = (event) => {
-    if (event.candidate) {
-      const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
-      set(candidateRef, { ...event.candidate.toJSON(), from: state.userId });
-    }
-  };
-  
-  // 5. Мониторинг состояния
-  pc.onconnectionstatechange = () => {
-    console.log('🔗 Статус соединения:', pc.connectionState);
-    if (pc.connectionState === 'connected') {
-        showCallModal('Звонок в процессе', 'ongoing');
-    }
-    if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
-        endCall();
-    }
-  };
 }
-async function createOffer() {
+async function createAnswer() {
   if (!state.callState.pc) return;
 
+  // Проверка трека (если getUserMedia провалилось раньше, не идем дальше)
+  if (state.callState.pc.getSenders().length === 0) {
+    console.error('Нет аудио-трека на callee');
+    showToast('Нет микрофона');
+    endCall();
+    return;
+  }
+
   try {
-    // Создаем offer
-    const offer = await state.callState.pc.createOffer();
-    // Устанавливаем его как локальное описание
-    await state.callState.pc.setLocalDescription(offer);
-
-    // Создаем объект для отправки в Firebase
-    const roomCallData = {
-      offer: {
-        type: offer.type,
-        sdp: offer.sdp
-      },
-      from: state.userId
-    };
-
-    // Отправляем offer в базу данных
-    await set(ref(db, `rooms/${state.roomId}/call`), roomCallData);
-    console.log("Offer успешно отправлен в Firebase.");
-
+    const answer = await state.callState.pc.createAnswer();
+    await state.callState.pc.setLocalDescription(answer);
+    await set(ref(db, `rooms/${state.roomId}/call/answer`), {
+      type: answer.type,
+      sdp: answer.sdp
+    });
+    console.log("Answer успешно отправлен в Firebase.");
   } catch (err) {
-    console.error('Ошибка создания offer:', err);
+    console.error('Ошибка создания answer:', err);
   }
 }
 async function createAnswer() {
@@ -1539,14 +1529,14 @@ async function createAnswer() {
 }
 
 window.acceptCall = function() {
-  // Отправляем ответ, что мы приняли звонок
+  if (!state.callState.pc) {
+    setupCallPeerConnection(); // Убеждаемся, что pc и трек готовы
+  }
   set(ref(db, `rooms/${state.roomId}/call/response`), {
     from: state.userId,
     accepted: true,
     timestamp: Date.now()
   });
-  
-  // Показываем у себя окно активного звонка
   showCallModal('Звонок в процессе', 'ongoing');
 }
 
