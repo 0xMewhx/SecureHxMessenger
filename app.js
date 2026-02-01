@@ -1413,7 +1413,6 @@ function setupCallListeners() {
     }, 500); // проверяем каждые полсекунды, готов ли пир
   });
 }
-
 function setupCallPeerConnection() {
   const pc = new RTCPeerConnection({
     iceServers: [
@@ -1432,7 +1431,7 @@ function setupCallPeerConnection() {
   });
   state.callState.pc = pc;
 
-  // Логи ICE и connection (твои)
+  // Логи ICE и connection
   pc.oniceconnectionstatechange = () => {
     console.log('ICE connection:', pc.iceConnectionState);
   };
@@ -1447,7 +1446,7 @@ function setupCallPeerConnection() {
     }
   };
 
-  // Слитый ontrack (без дубликата)
+  // ontrack — один, слитый, с улучшенным play
   pc.ontrack = (event) => {
     console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
     console.log('📡 Получен удаленный трек:', {
@@ -1471,17 +1470,21 @@ function setupCallPeerConnection() {
       remoteAudio.style.display = 'none';
       document.body.appendChild(remoteAudio);
     }
+
     remoteAudio.srcObject = state.callState.remoteStream;
 
-    // Улучшенный play с ожиданием user gesture
-    const playAudio = () => remoteAudio.play().catch(e => console.error('play failed', e));
-    playAudio(); // Пробуем сразу
-    document.addEventListener('click', playAudio, { once: true }); // Если блок, ждём клика
-    document.addEventListener('touchstart', playAudio, { once: true });
+    // Пробуем играть сразу + ждём клик/тап если заблокировано
+    const tryPlay = () => {
+      remoteAudio.play()
+        .then(() => console.log('🔊 Звук пошёл!'))
+        .catch(e => console.warn('Автоплей заблокирован:', e));
+    };
+    tryPlay();
+    document.addEventListener('click', tryPlay, { once: true });
+    document.addEventListener('touchstart', tryPlay, { once: true });
     showToast('Нажми на экран, если звук не пошёл');
   };
 
-  // onicecandidate (твой)
   pc.onicecandidate = (event) => {
     if (event.candidate) {
       const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
@@ -1489,18 +1492,23 @@ function setupCallPeerConnection() {
     }
   };
 
-  // getUserMedia и addTrack (твой)
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      state.callState.localStream = stream;
-      stream.getTracks().forEach(track => pc.addTrack(track, stream));
-      console.log('✅ Локальный поток добавлен');
-    })
-    .catch(err => {
-      console.error('Ошибка доступа к микрофону:', err);
-      showToast('Ошибка: нет доступа к микрофону');
-      endCall();
-    });
+  // НЕ запрашиваем микрофон здесь автоматически!
+  // Для звонящего (caller) — оставляем запрос здесь
+  // Для принимающего (callee) — перенесём в acceptCall
+  if (state.callState.isCaller) {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        state.callState.localStream = stream;
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        console.log('✅ Локальный поток добавлен (caller)');
+      })
+      .catch(err => {
+        console.error('Микрофон caller:', err);
+        showToast('Нет микрофона у звонящего');
+        endCall();
+      });
+  }
+  // Для callee — микрофон запросим в acceptCall после клика "✅"
 }
 async function createAnswer() {
   if (!state.callState.pc) return;
@@ -1528,13 +1536,30 @@ async function createAnswer() {
 }
 window.acceptCall = function() {
   if (!state.callState.pc) {
-    setupCallPeerConnection(); // Убеждаемся, что pc и трек готовы
+    setupCallPeerConnection();
   }
+
+  // Запрашиваем микрофон ОТ КЛИКА — браузер разрешит
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      state.callState.localStream = stream;
+      stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
+      console.log('✅ Локальный поток добавлен на callee (от клика ✅)');
+    })
+    .catch(err => {
+      console.error('Микрофон на принимающей стороне:', err);
+      showToast('Нет доступа к микрофону');
+      endCall();
+      return;
+    });
+
+  // Отправляем согласие
   set(ref(db, `rooms/${state.roomId}/call/response`), {
     from: state.userId,
     accepted: true,
     timestamp: Date.now()
   });
+
   showCallModal('Звонок в процессе', 'ongoing');
 }
 
