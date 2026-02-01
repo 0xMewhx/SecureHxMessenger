@@ -1263,22 +1263,36 @@ callBtn.addEventListener('click', () => {
   initiateCall();
 });
 
-function initiateCall() {
+async function initiateCall() {
+  // Проверяем, не идет ли уже звонок
+  if (state.callState.active) {
+    showToast('Звонок уже идёт!');
+    return;
+  }
+  
+  // 1. СРАЗУ показываем окно, чтобы пользователь видел отклик
+  showCallModal('Звонок...', 'calling');
+  console.log("Модальное окно звонка должно быть показано.");
+
+  // 2. Устанавливаем состояние
   state.callState.active = true;
   state.callState.isCaller = true;
   
-  // Сразу настраиваем WebRTC соединение
-  setupCallPeerConnection();
+  try {
+    // 3. Настраиваем WebRTC (включая запрос на микрофон)
+    await setupCallPeerConnection();
+    console.log("setupCallPeerConnection завершен.");
 
-  // Отправляем запрос в базу
-  set(ref(db, `rooms/${state.roomId}/call/request`), {
-    from: state.userId,
-    timestamp: Date.now()
-  }).then(() => {
-    // После отправки запроса, создаем Offer (предложение звонка)
-    createOffer();
-    showCallModal('Звонок...', 'calling');
-  });
+    // 4. Создаем Offer (предложение звонка)
+    await createOffer();
+    console.log("createOffer завершен.");
+
+  } catch (error) {
+    console.error("Ошибка при инициации звонка:", error);
+    showToast('Ошибка звонка: ' + error.message);
+    // Если что-то пошло не так, завершаем звонок
+    endCall();
+  }
 }
 
 function showCallModal(statusText, mode) {
@@ -1330,56 +1344,44 @@ function closeCallModal() {
 function setupCallListeners() {
   const callRef = ref(db, `rooms/${state.roomId}/call`);
 
-  onValue(callRef, (snapshot) => {
-    // Если ветка /call была удалена, значит собеседник повесил трубку.
+  onValue(callRef, async (snapshot) => {
+    // Если данных о звонке нет, а у нас он активен - завершаем.
+    // Это срабатывает, когда собеседник вешает трубку.
     if (!snapshot.exists() && (state.callState.active || state.callState.pc)) {
       showToast('Звонок завершён');
       endCall();
       return;
     }
-
     if (!snapshot.exists()) return;
 
     const callData = snapshot.val();
-
-    // 1. Для принимающего: получили запрос на звонок
-    if (callData.request && callData.request.from !== state.userId && !state.callState.active) {
-      state.callState.active = true;
-      state.callState.isCaller = false;
-      showCallModal('Входящий звонок', 'incoming');
-      setupCallPeerConnection();
-    }
-    
-    // 2. Для звонящего: получили ответ на наш звонок
-    if (callData.response && callData.response.from !== state.userId && state.callState.isCaller) {
-      if (!callData.response.accepted) {
-        showToast('Звонок отклонён');
-        endCall();
-      }
-    }
-    
-    // 3. Обмен WebRTC сигналами
     const pc = state.callState.pc;
-    if (!pc) return; // Если соединение не создано, выходим
 
-    // Принимающий получает Offer и создает Answer
-    if (callData.offer && !state.callState.isCaller && pc.signalingState === 'have-local-offer') {
-       pc.setRemoteDescription(new RTCSessionDescription(callData.offer)).then(createAnswer);
+    // --- Логика для ПРИНИМАЮЩЕГО ---
+    // Если есть offer и мы еще не в звонке
+    if (callData.offer && !state.callState.isCaller && !pc) {
+      // Показываем окно входящего звонка
+      showCallModal('Входящий звонок', 'incoming');
+      // Принимающий настраивает свое соединение
+      await setupCallPeerConnection();
+      // Устанавливаем полученный offer
+      await state.callState.pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
+      // И создаем ответ
+      await createAnswer();
     }
     
-    // Звонящий получает Answer
-    if (callData.answer && state.callState.isCaller && pc.signalingState === 'have-remote-offer') {
-      pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
+    // --- Логика для ЗВОНЯЩЕГО ---
+    // Если появился answer и мы звонящий
+    if (callData.answer && state.callState.isCaller && pc.signalingState !== 'stable') {
+      await pc.setRemoteDescription(new RTCSessionDescription(callData.answer));
     }
-  });
 
-  // Отдельно слушаем ICE-кандидатов от собеседника
-  const peerId = state.isHost ? 'guest' : 'host'; // Предполагается, что ID собеседника можно определить так
-  const peerCandidatesRef = ref(db, `rooms/${state.roomId}/call/candidates/${peerId}`);
-  onValue(peerCandidatesRef, (snapshot) => {
-    if (snapshot.exists() && state.callState.pc) {
-      snapshot.forEach((childSnapshot) => {
-        state.callState.pc.addIceCandidate(new RTCIceCandidate(childSnapshot.val()));
+    // Обмен ICE-кандидатами для обоих
+    if (callData.candidates) {
+      Object.values(callData.candidates).forEach(candidate => {
+        if (candidate.from !== state.userId) {
+          pc.addIceCandidate(new RTCIceCandidate(candidate));
+        }
       });
     }
   });
@@ -1420,11 +1422,11 @@ function setupCallPeerConnection() {
   };
   
   // ИСПРАВЛЕНИЕ: Отправляем каждого кандидата, не перезаписывая старые
-  pc.onicecandidate = (event) => {
-    if (event.candidate) {
-      // Добавляем кандидата в список в Firebase
-      const candidatesRef = ref(db, `rooms/${state.roomId}/call/candidates/${state.userId}`);
-      push(candidatesRef, event.candidate.toJSON());
+pc.onicecandidate = (event) => {
+  if (event.candidate) {
+    // Отправляем каждого кандидата в Firebase в свой список
+    const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
+    set(candidateRef, { ...event.candidate.toJSON(), from: state.userId });
     }
   };
   
@@ -1439,22 +1441,54 @@ function setupCallPeerConnection() {
   };
 }
 
-function createOffer() {
-  state.callState.pc.createOffer()
-    .then(offer => {
-      state.callState.pc.setLocalDescription(offer);
-      set(ref(db, `rooms/${state.roomId}/call/offer`), offer);
-    })
-    .catch(err => console.error('Ошибка создания offer:', err));
-}
+async function createOffer() {
+  if (!state.callState.pc) return;
 
-function createAnswer() {
-  state.callState.pc.createAnswer()
-    .then(answer => {
-      state.callState.pc.setLocalDescription(answer);
-      set(ref(db, `rooms/${state.roomId}/call/answer`), answer);
-    })
-    .catch(err => console.error('Ошибка создания answer:', err));
+  try {
+    // Создаем offer
+    const offer = await state.callState.pc.createOffer();
+    // Устанавливаем его как локальное описание
+    await state.callState.pc.setLocalDescription(offer);
+
+    // Создаем объект для отправки в Firebase
+    const roomCallData = {
+      offer: {
+        type: offer.type,
+        sdp: offer.sdp
+      },
+      from: state.userId
+    };
+
+    // Отправляем offer в базу данных
+    await set(ref(db, `rooms/${state.roomId}/call`), roomCallData);
+    console.log("Offer успешно отправлен в Firebase.");
+
+  } catch (err) {
+    console.error('Ошибка создания offer:', err);
+  }
+}
+async function createAnswer() {
+  if (!state.callState.pc) return;
+
+  try {
+    // Создаем answer
+    const answer = await state.callState.pc.createAnswer();
+    // Устанавливаем его как локальное описание
+    await state.callState.pc.setLocalDescription(answer);
+
+    // Создаем объект для отправки
+    const answerData = {
+      type: answer.type,
+      sdp: answer.sdp
+    };
+    
+    // Отправляем answer в базу
+    await set(ref(db, `rooms/${state.roomId}/call/answer`), answerData);
+    console.log("Answer успешно отправлен в Firebase.");
+
+  } catch (err) {
+    console.error('Ошибка создания answer:', err);
+  }
 }
 
 window.acceptCall = function() {
