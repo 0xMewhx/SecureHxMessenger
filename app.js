@@ -1386,7 +1386,7 @@ function setupCallListeners() {
       showCallModal('Входящий звонок', 'incoming');
       await setupCallPeerConnection();
       await state.callState.pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
-      await createAnswer();
+      
     }
     
     // ЗВОНЯЩИЙ: Ловим Answer
@@ -1500,23 +1500,34 @@ async function createAnswer() {
     console.error('Ошибка создания answer:', err);
   }
 }
-window.acceptCall = async function() {
-  try {
-    // 1. Сначала будим микрофон и коннект
-    await prepareMediaAndConnection();
-
-    // 2. Только потом отвечаем в Firebase
-    await set(ref(db, `rooms/${state.roomId}/call/response`), {
-      from: state.userId,
-      accepted: true,
-      timestamp: Date.now()
-    });
-
-    showCallModal('Звонок в процессе', 'ongoing');
-  } catch (err) {
-    console.error('Ошибка приема звонка:', err);
-    endCall();
+window.acceptCall = async function() {  // Сделай async!
+  if (!state.callState.pc) {
+    setupCallPeerConnection();
   }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.callState.localStream = stream;
+    stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
+    console.log('✅ Локальный поток добавлен (callee от клика)');
+    
+    // ✅ ТЕПЕРЬ создаём answer ПОСЛЕ добавления микрофона
+    await createAnswer();
+    
+  } catch(err) {
+    console.error('Микрофон callee:', err);
+    showToast('Нет доступа к микрофону');
+    endCall();
+    return;
+  }
+
+  set(ref(db, `rooms/${state.roomId}/call/response`), {
+    from: state.userId,
+    accepted: true,
+    timestamp: Date.now()
+  });
+
+  showCallModal('Звонок в процессе', 'ongoing');
 }
 window.declineCall = function() {
   // Просто завершаем звонок. endCall сама всё почистит в Firebase.
