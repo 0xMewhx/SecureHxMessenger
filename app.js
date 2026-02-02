@@ -1439,38 +1439,31 @@ function setupCallPeerConnection() {
     }
   };
 
-  pc.ontrack = (event) => {
-    console.log('ONTRACK finally сработал!', event.track.kind, event.track.muted);
-    console.log('📡 Получен удаленный трек:', {
-      kind: event.track.kind,
-      enabled: event.track.enabled,
-      muted: event.track.muted,
-      readyState: event.track.readyState,
-      id: event.track.id
-    });
-    if (!state.callState.remoteStream) {
-      state.callState.remoteStream = new MediaStream();
-    }
-    state.callState.remoteStream.addTrack(event.track);
-
+pc.ontrack = (event) => {
+    console.log('📡 ONTRACK:', event.track.kind);
+    
     let remoteAudio = document.getElementById('remoteAudio');
     if (!remoteAudio) {
-      remoteAudio = document.createElement('audio');
-      remoteAudio.id = 'remoteAudio';
-      remoteAudio.autoplay = true;
-      remoteAudio.style.display = 'none';
-      document.body.appendChild(remoteAudio);
+        remoteAudio = document.createElement('audio');
+        remoteAudio.id = 'remoteAudio';
+        remoteAudio.autoplay = true;
+        remoteAudio.hidden = true;
+        document.body.appendChild(remoteAudio);
     }
-    remoteAudio.srcObject = state.callState.remoteStream;
-    remoteAudio.muted = false; // ПРИНУДИТЕЛЬНО снимаем мут с элемента
-    remoteAudio.volume = 1.0;  // Выкручиваем громкость
-    const tryPlay = () => remoteAudio.play().catch(e => console.warn('Автоплей:', e));
-    tryPlay();
-    document.addEventListener('click', tryPlay, { once: true });
-    document.addEventListener('touchstart', tryPlay, { once: true });
-    showToast('Нажми на экран, если звук не пошёл');
-  };
 
+    // Вместо использования заранее созданного стрима, 
+    // берем тот, который пришел прямо в событии
+    if (event.streams && event.streams[0]) {
+        remoteAudio.srcObject = event.streams[0];
+    } else {
+        // Фоллбэк: если стрима нет, упаковываем трек в новый стрим
+        const newStream = new MediaStream([event.track]);
+        remoteAudio.srcObject = newStream;
+    }
+
+    remoteAudio.muted = false;
+    remoteAudio.play().catch(e => console.error("Autoplay blocked:", e));
+};
   pc.onicecandidate = (event) => {
     if (event.candidate) {
       const candidateRef = push(ref(db, `rooms/${state.roomId}/call/candidates`));
