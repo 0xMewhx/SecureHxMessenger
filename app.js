@@ -1254,7 +1254,22 @@ async function sendMessage() {
 }
 
 // ============ CALL SYSTEM ============
+async function prepareMediaAndConnection() {
+    // 1. Мгновенно запрашиваем микрофон (пока клик "свежий")
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.callState.localStream = stream;
 
+    // 2. Сразу инициализируем PeerConnection
+    setupCallPeerConnection();
+
+    // 3. Сразу привязываем треки
+    stream.getTracks().forEach(track => {
+        state.callState.pc.addTrack(track, stream);
+    });
+
+    console.log("✅ Система разбужена, треки привязаны");
+    return stream;
+}
 callBtn.addEventListener('click', () => {
   if (!state.peerOnline) {
     showToast('Собеседник оффлайн!');
@@ -1289,32 +1304,20 @@ async function createOffer() {
   }
 }
 async function initiateCall() {
-  if (state.callState.active) {
-    showToast('Звонок уже идёт!');
-    return;
-  }
+  if (state.callState.active) return;
 
   showCallModal('Звонок...', 'calling');
-  console.log("Модальное окно звонка должно быть показано.");
-
   state.callState.active = true;
   state.callState.isCaller = true;
 
   try {
-    await setupCallPeerConnection();
-    console.log("setupCallPeerConnection завершен.");
-
-    // Запрос микрофона для caller (от клика на кнопку звонка — gesture есть)
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    state.callState.localStream = stream;
-    stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
-    console.log('✅ Локальный поток добавлен (caller)');
-
+    // Вызываем нашего "будильника" первым делом
+    await prepareMediaAndConnection();
+    
+    // И только когда всё готово внутри — шлем оффер
     await createOffer();
-    console.log("createOffer завершен.");
   } catch (error) {
-    console.error("Ошибка при инициации звонка:", error);
-    showToast('Ошибка звонка: ' + (error.message || 'Неизвестно'));
+    console.error("Ошибка при инициации:", error);
     endCall();
   }
 }
@@ -1497,32 +1500,23 @@ async function createAnswer() {
     console.error('Ошибка создания answer:', err);
   }
 }
-window.acceptCall = function() {
-  if (!state.callState.pc) {
-    setupCallPeerConnection();
-  }
+window.acceptCall = async function() {
+  try {
+    // 1. Сначала будим микрофон и коннект
+    await prepareMediaAndConnection();
 
-  // Запрос микрофона от клика "✅" — браузер разрешит
-  navigator.mediaDevices.getUserMedia({ audio: true })
-    .then(stream => {
-      state.callState.localStream = stream;
-      stream.getTracks().forEach(track => state.callState.pc.addTrack(track, stream));
-      console.log('✅ Локальный поток добавлен (callee от клика)');
-    })
-    .catch(err => {
-      console.error('Микрофон callee:', err);
-      showToast('Нет доступа к микрофону');
-      endCall();
-      return;
+    // 2. Только потом отвечаем в Firebase
+    await set(ref(db, `rooms/${state.roomId}/call/response`), {
+      from: state.userId,
+      accepted: true,
+      timestamp: Date.now()
     });
 
-  set(ref(db, `rooms/${state.roomId}/call/response`), {
-    from: state.userId,
-    accepted: true,
-    timestamp: Date.now()
-  });
-
-  showCallModal('Звонок в процессе', 'ongoing');
+    showCallModal('Звонок в процессе', 'ongoing');
+  } catch (err) {
+    console.error('Ошибка приема звонка:', err);
+    endCall();
+  }
 }
 window.declineCall = function() {
   // Просто завершаем звонок. endCall сама всё почистит в Firebase.
