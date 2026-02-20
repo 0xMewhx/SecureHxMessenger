@@ -8,14 +8,19 @@
   --success-color: #4CAF50;
   --mobile-breakpoint: 768px;
 }
-/* --- СТИЛИ ДЛЯ КНОПКИ СКАЧИВАНИЯ --- */
+/* --- СТИЛИ ДЛЯ КНОПКИ СКАЧИВАНИЯ (С АНИМАЦИЕЙ ГРАНИЦ) --- */
 .download-btn-container {
   text-align: center;
   margin: 30px 0;
+  /* Создаем контекст наложения, чтобы свечение не перекрывало другие блоки */
+  position: relative;
+  z-index: 10;
 }
 
 .download-link-btn {
-  background: linear-gradient(45deg, #ff5aab, #00f2ea);
+  position: relative;
+  /* Убираем фон самой кнопки, он будет в ::after */
+  background: transparent; 
   color: #fff;
   text-decoration: none;
   font-family: 'Roboto Mono', monospace;
@@ -24,22 +29,83 @@
   padding: 15px 40px;
   border-radius: 30px;
   border: none;
-  box-shadow: 0 0 15px rgba(255, 90, 171, 0.6);
-  transition: transform 0.2s, box-shadow 0.2s;
   display: inline-block;
   cursor: pointer;
+  /* Скрываем всё, что вылезает за радиус, чтобы змейка была внутри формы */
+  overflow: hidden; 
+  transition: transform 0.2s, box-shadow 0.2s;
+  /* Важно для z-index псевдо-элементов */
+  z-index: 1; 
 }
 
+/* 1. Слой "Змейки" (Вращающийся градиент) */
+.download-link-btn::before {
+  content: '';
+  position: absolute;
+  /* Делаем этот слой намного больше кнопки */
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  /* Конический градиент создает "луч" */
+  background: conic-gradient(
+    transparent, 
+    transparent, 
+    transparent, 
+    #00f2ea, /* Циан (хвост) */
+    #ff5aab  /* Розовый (голова) */
+  );
+  /* Крутим его */
+  animation: rotate-border 4s linear infinite;
+  z-index: -2;
+  opacity: 0; /* Скрыт пока не наведешь */
+  transition: opacity 0.3s;
+}
+
+/* 2. Слой "Тела кнопки" (Внутренняя часть) */
+.download-link-btn::after {
+  content: '';
+  position: absolute;
+  /* Отступ 3px создает толщину границы */
+  inset: 3px; 
+  background: linear-gradient(45deg, #ff5aab, #00f2ea); /* Старый фон кнопки */
+  border-radius: 27px; /* Чуть меньше радиуса родителя */
+  z-index: -1;
+  transition: background 0.3s;
+}
+
+/* --- ЭФФЕКТЫ ПРИ НАВЕДЕНИИ --- */
+
+/* Показываем вращающуюся змейку */
+.download-link-btn:hover::before {
+  opacity: 1;
+  /* Ускоряем вращение при наведении для драйва */
+  animation: rotate-border 2s linear infinite;
+}
+
+/* Затемняем центр кнопки, чтобы граница сияла ярче (неоновый эффект) */
+.download-link-btn:hover::after {
+  background: #1a1a1a; /* Темный фон внутри */
+}
+
+/* Легкое увеличение */
 .download-link-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(0, 242, 234, 0.8);
+  box-shadow: 0 0 25px rgba(0, 242, 234, 0.6); /* Свечение цианом */
+  color: #00f2ea; /* Текст тоже становится неоновым */
 }
 
 .download-link-btn:active {
   transform: scale(0.95);
 }
 
-/* Стили для списка фич приложения */
+/* Анимация вращения */
+@keyframes rotate-border {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Стили для списка фич (оставь как было) */
 .app-features-grid {
   display: grid;
   gap: 10px;
@@ -52,7 +118,6 @@
   background: rgba(0, 242, 234, 0.1);
   border-radius: 8px;
 }
-
 * { 
   box-sizing: border-box; 
   /* Touch оптимизация - убираем нежелательные выделения */
