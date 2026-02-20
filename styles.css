@@ -1,27 +1,27 @@
 :root {
-  --bg-color: linear-gradient(135deg, #2c003e, #5a006a, #ff5aab);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --text-color: #f5f5f5;
-  --header-color: #ffd6f7;
-  --accent-color: #ff5aab;
-  --button-gradient: linear-gradient(90deg, #ff5aab, #8a2be2);
+  /* Soft Rich Black & White Theme */
+  --bg-color: linear-gradient(135deg, #09090b, #121214, #18181b);
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --text-color: #a1a1aa;
+  --header-color: #fafafa;
+  --accent-color: #ffffff;
+  --button-gradient: linear-gradient(90deg, #ffffff, #e4e4e7);
   --success-color: #4CAF50;
   --mobile-breakpoint: 768px;
 }
-/* --- СТИЛИ ДЛЯ КНОПКИ СКАЧИВАНИЯ (С АНИМАЦИЕЙ ГРАНИЦ) --- */
+
+/* --- СТИЛИ ДЛЯ КНОПКИ СКАЧИВАНИЯ (ПЛАТИНОВАЯ АНИМАЦИЯ) --- */
 .download-btn-container {
   text-align: center;
   margin: 30px 0;
-  /* Создаем контекст наложения, чтобы свечение не перекрывало другие блоки */
   position: relative;
   z-index: 10;
 }
 
 .download-link-btn {
   position: relative;
-  /* Убираем фон самой кнопки, он будет в ::after */
   background: transparent; 
-  color: #fff;
+  color: #fafafa;
   text-decoration: none;
   font-family: 'Roboto Mono', monospace;
   font-weight: bold;
@@ -31,81 +31,70 @@
   border: none;
   display: inline-block;
   cursor: pointer;
-  /* Скрываем всё, что вылезает за радиус, чтобы змейка была внутри формы */
   overflow: hidden; 
-  transition: transform 0.2s, box-shadow 0.2s;
-  /* Важно для z-index псевдо-элементов */
+  transition: transform 0.2s, box-shadow 0.2s, color 0.3s;
   z-index: 1; 
 }
 
-/* 1. Слой "Змейки" (Вращающийся градиент) */
+/* 1. Слой "Змейки" (Платиновый луч) */
 .download-link-btn::before {
   content: '';
   position: absolute;
-  /* Делаем этот слой намного больше кнопки */
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  /* Конический градиент создает "луч" */
   background: conic-gradient(
     transparent, 
     transparent, 
     transparent, 
-    #00f2ea, /* Циан (хвост) */
-    #ff5aab  /* Розовый (голова) */
+    #555555, /* Темно-серебристый хвост */
+    #ffffff  /* Яркая белая голова */
   );
-  /* Крутим его */
   animation: rotate-border 4s linear infinite;
   z-index: -2;
-  opacity: 0; /* Скрыт пока не наведешь */
+  opacity: 0; 
   transition: opacity 0.3s;
 }
 
-/* 2. Слой "Тела кнопки" (Внутренняя часть) */
+/* 2. Слой "Тела кнопки" (Матовый графит) */
 .download-link-btn::after {
   content: '';
   position: absolute;
-  /* Отступ 3px создает толщину границы */
-  inset: 3px; 
-  background: linear-gradient(45deg, #ff5aab, #00f2ea); /* Старый фон кнопки */
-  border-radius: 27px; /* Чуть меньше радиуса родителя */
+  inset: 2px; 
+  background: linear-gradient(45deg, #09090b, #18181b); 
+  border-radius: 28px; 
   z-index: -1;
   transition: background 0.3s;
 }
 
 /* --- ЭФФЕКТЫ ПРИ НАВЕДЕНИИ --- */
-
-/* Показываем вращающуюся змейку */
 .download-link-btn:hover::before {
   opacity: 1;
-  /* Ускоряем вращение при наведении для драйва */
   animation: rotate-border 2s linear infinite;
 }
 
-/* Затемняем центр кнопки, чтобы граница сияла ярче (неоновый эффект) */
 .download-link-btn:hover::after {
-  background: #1a1a1a; /* Темный фон внутри */
+  background: #000000; 
 }
 
-/* Легкое увеличение */
 .download-link-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(0, 242, 234, 0.6); /* Свечение цианом */
-  color: #00f2ea; /* Текст тоже становится неоновым */
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); 
+  color: #ffffff; 
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 .download-link-btn:active {
   transform: scale(0.95);
 }
 
-/* Анимация вращения */
 @keyframes rotate-border {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Стили для списка фич (оставь как было) */
+/* Стили для списка фич */
 .app-features-grid {
   display: grid;
   gap: 10px;
@@ -115,12 +104,14 @@
 
 .app-feature-item {
   padding: 10px;
-  background: rgba(0, 242, 234, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 8px;
+  color: #d4d4d8;
 }
+
 * { 
   box-sizing: border-box; 
-  /* Touch оптимизация - убираем нежелательные выделения */
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -128,7 +119,6 @@
 }
 
 html {
-  /* Safe area поддержка для устройств с вырезами */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   -webkit-text-size-adjust: 100%;
@@ -147,21 +137,17 @@ body {
   transition: background 0.3s ease;
   position: relative;
   overflow-x: hidden;
-  
-  /* Mobile-first оптимизации */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Touch-action оптимизация для всех интерактивных элементов */
-button, .btn, input, textarea, a, [role="button"] {
+button, .btn, input, textarea, a, {
   touch-action: manipulation;
-  min-height: 44px; /* Минимальный размер для touch targets */
+  min-height: 44px;
   min-width: 44px;
 }
 
-/* Убираем hover эффекты на touch устройствах */
 @media (hover: none) and (pointer: coarse) {
   button:hover, .card:hover, a:hover {
     transform: none !important;
@@ -174,7 +160,6 @@ button, .btn, input, textarea, a, [role="button"] {
   }
 }
 
-/* Ripple эффект для кнопок */
 .ripple {
   position: relative;
   overflow: hidden;
@@ -206,40 +191,56 @@ button, .btn, input, textarea, a, [role="button"] {
   z-index: 1;
 }
 
-h1 { margin-top: 24px; font-size: 2rem; color: var(--header-color); text-shadow: 0 2px 8px rgba(0,0,0,0.5); z-index: 100; position: relative;}
-.container { width: 90%; max-width: 800px; margin: 16px auto; padding-bottom: 120px; z-index: 100; position: relative;}
+h1 { 
+  margin-top: 24px; 
+  font-size: 2rem; 
+  color: var(--header-color); 
+  text-shadow: 0 4px 15px rgba(255, 255, 255, 0.1); 
+  z-index: 100; 
+  position: relative;
+}
+
+.container { 
+  width: 90%; 
+  max-width: 800px; 
+  margin: 16px auto; 
+  padding-bottom: 120px; 
+  z-index: 100; 
+  position: relative;
+}
+
 .card { 
   background: var(--glass-bg); 
   border-radius: 16px; 
   padding: 20px; 
   margin-bottom: 16px; 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.4); 
-  backdrop-filter: blur(4px); 
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px); 
   transition: transform 0.4s, box-shadow 0.4s;
   position: relative;
   overflow: hidden;
 }
+
 .card::before {
   content: '';
   position: absolute;
-  top: -2px; left: -2px; right: -2px; bottom: -2px;
-  background: linear-gradient(45deg, transparent, rgba(255,90,171,0.3), transparent);
+  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
   border-radius: 16px;
   opacity: 0;
   transition: opacity 0.3s;
   z-index: -1;
 }
 
-/* Заменяем hover на focus-visible */
 .card:focus-visible::before { opacity: 1; }
 .card:focus-visible { 
   transform: translateY(-2px); 
   box-shadow: 0 12px 24px rgba(0,0,0,0.6);
-  outline: 2px solid rgba(255, 90, 171, 0.5);
+  outline: 1px solid rgba(255, 255, 255, 0.3);
   outline-offset: 2px;
 }
 
-/* Touch feedback для карточек */
 @media (hover: none) and (pointer: coarse) {
   .card:active {
     transform: translateY(1px);
@@ -252,87 +253,74 @@ textarea, input {
   margin: 6px 0; 
   padding: 12px 16px; 
   border-radius: 10px; 
-  border: none; 
-  background: rgba(255,255,255,0.2); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  background: rgba(0, 0, 0, 0.4); 
   color: #fff; 
   font-family: 'Roboto Mono', monospace; 
-  font-size: 16px; /* Предотвращает zoom на iOS */
-  transition: all 0.6s;
+  font-size: 16px; 
+  transition: all 0.4s;
   touch-action: manipulation;
-  
-  /* Mobile оптимизации */
   -webkit-appearance: none;
   appearance: none;
-  
-  /* Минимальная высота для лучшего touch */
   min-height: 44px;
 }
 
 textarea:focus, input:focus { 
   outline: none; 
-  background: rgba(255,255,255,0.25); 
-  box-shadow: 0 0 15px rgba(255,90,171,0.5);
-  border: 2px solid rgba(255,90,171,0.3);
+  background: rgba(0, 0, 0, 0.6); 
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Active состояние для input */
 textarea:active, input:active {
-  background: rgba(255,255,255,0.3);
+  background: rgba(0, 0, 0, 0.5);
 }
 
-/* Специальные стили для чат инпута */
 #chat-input {
   position: relative;
   z-index: 10;
   margin: 0;
   padding: 12px 16px;
   min-height: 44px;
-  font-size: 16px; /* Предотвращает zoom на iOS */
+  font-size: 16px; 
   border-radius: 25px;
-  
-  /* Избегаем наложения с виртуальной клавиатурой */
   padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
 button { 
   background: var(--button-gradient); 
-  color: #fff; 
+  color: #09090b; 
   border: none; 
   border-radius: 12px; 
   padding: 14px 20px; 
   margin: 4px; 
   cursor: pointer; 
-  font-weight: 600; 
+  font-weight: 700; 
   transition: all 0.4s; 
   white-space: nowrap;
   position: relative;
   overflow: hidden;
   touch-action: manipulation;
-  
-  /* Минимальный размер для touch devices */
   min-height: 44px;
   min-width: 44px;
 }
 
-/* Заменяем hover на focus-visible для accessibility */
 button:focus-visible { 
-  outline: 2px solid rgba(255, 90, 171, 0.8);
+  outline: 2px solid rgba(255, 255, 255, 0.8);
   outline-offset: 2px;
   transform: translateY(-2px); 
   box-shadow: 0 8px 20px rgba(0,0,0,0.5); 
   filter: brightness(1.1);
 }
 
-/* Active состояние для touch */
 button:active { 
   transform: translateY(1px) scale(0.98);
   transition: all 0.3s;
 }
 
-/* Touch feedback */
 @media (hover: none) and (pointer: coarse) {
   button:active {
-    background: linear-gradient(90deg, #ff75c4, #a64ddb);
+    background: #e4e4e7;
     transform: translateY(1px) scale(0.95);
   }
 }
@@ -344,7 +332,6 @@ button:disabled {
   filter: none;
 }
 
-/* Ripple эффект применяем ко всем кнопкам */
 button, .choice-btn, .game-btn, #send-btn, #voice-btn, #theme-toggle {
   position: relative;
   overflow: hidden;
@@ -358,7 +345,7 @@ button::after, .choice-btn::after, .game-btn::after {
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.1);
   transform: translate(-50%, -50%);
   transition: width 0.3s ease, height 0.3s ease;
   pointer-events: none;
@@ -369,14 +356,12 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   height: 200px;
 }
 
-/* Touch active состояние */
 .touch-active {
   transform: scale(0.95);
   filter: brightness(0.9);
   transition: all 0.1s ease;
 }
 
-/* Keyboard open состояние */
 .keyboard-open {
   --keyboard-height: 300px;
 }
@@ -390,7 +375,6 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   transition: transform 0.3s ease;
 }
 
-/* CSS переменные для динамических значений */
 :root {
   --keyboard-height: 0px;
   --safe-area-inset-bottom: 0px;
@@ -399,7 +383,6 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   --safe-area-inset-right: 0px;
 }
 
-/* Вычисляем safe-area значения */
 @supports (padding: max(0px)) {
   :root {
     --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
@@ -409,36 +392,21 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   }
 }
 
-/* CSS для предотвращения text selection на мобильных */
 @media (max-width: 768px) {
-  button, .btn, [role="button"] {
+  button, .btn, {
     -webkit-user-select: none;
     user-select: none;
   }
-  
-  /* Но разрешаем selection для текстовых элементов */
-  textarea, input, [contenteditable] {
+  textarea, input, {
     -webkit-user-select: text;
     user-select: text;
   }
 }
 
-/* Оптимизация для устройств с высоким DPI */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   #sans-image {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
-  }
-}
-
-/* Темная тема оптимизации */
-@media (prefers-color-scheme: dark) {
-  .card {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  input, textarea {
-    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -458,7 +426,7 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   color: var(--header-color);
   margin: 10px 0;
   padding: 12px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   border-left: 4px solid var(--accent-color);
   text-align: center;
@@ -466,7 +434,7 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
 
 .typing-indicator {
   padding: 10px 15px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 15px;
   align-self: flex-start;
   display: none;
@@ -487,13 +455,8 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   animation: typingBounce 2.5s infinite;
 }
 
-.typing-dot:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.typing-dot:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typing-dot:nth-child(2) { animation-delay: 0.5s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typingBounce {
   0%, 60%, 100% { transform: translateY(0); }
@@ -509,17 +472,19 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.3);
   border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
   margin: 15px 0;
 }
 
 .message {
   max-width: 80%;
-  padding: 10px 15px;
-  border-radius: 15px;
+  padding: 12px 16px;
+  border-radius: 18px;
   word-wrap: break-word;
-  animation: messageIn 1.0s;
+  animation: messageIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 @keyframes messageIn {
@@ -527,12 +492,12 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Custom Voice Message Player */
+/* Voice Player */
 .voice-player {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px;
+  padding: 4px 8px;
   min-width: 200px;
   max-width: 280px;
   position: relative;
@@ -542,46 +507,35 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  transition: all 0.4s;
+  font-size: 14px;
+  transition: all 0.3s;
   flex-shrink: 0;
 }
 
 .voice-play-btn:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
 }
 
-/* Touch-friendly voice player */
 .voice-play-btn:focus-visible {
-  outline: 2px solid rgba(255, 90, 171, 0.8);
+  outline: 2px solid rgba(255, 255, 255, 0.8);
   outline-offset: 2px;
-  transform: scale(1.05);
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .voice-play-btn:active {
-    background: rgba(255,255,255,0.4);
-    transform: scale(0.9);
-  }
-}
-
-.voice-play-btn:active {
-  transform: scale(0.95);
 }
 
 .message.sent .voice-play-btn {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.08);
+  color: #09090b;
 }
 
 .message.sent .voice-play-btn:hover {
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.15);
 }
 
 .voice-waveform {
@@ -595,21 +549,21 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
 
 .voice-wave-bar {
   width: 3px;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
   transition: all 0.15s;
 }
 
 .message.sent .voice-wave-bar {
-  background: rgba(255,255,255,0.6);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .voice-wave-bar.active {
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .message.sent .voice-wave-bar.active {
-  background: rgba(255,255,255,1);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .voice-duration {
@@ -620,31 +574,37 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   text-align: right;
 }
 
-.voice-player audio {
-  display: none;
-}
+.voice-player audio { display: none; }
 
 .message.sent {
   align-self: flex-end;
-  background: linear-gradient(135deg, #ff5aab, #8a2be2);
-  border-bottom-right-radius: 5px;
+  background: #ffffff;
+  color: #000000;
+  border-bottom-right-radius: 4px;
 }
 
 .message.received {
   align-self: flex-start;
-  background: rgba(255,255,255,0.15);
-  border-bottom-left-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fafafa;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom-left-radius: 4px;
 }
 
 .message-time {
   font-size: 0.7rem;
-  opacity: 0.6;
-  margin-top: 3px;
+  opacity: 0.5;
+  margin-top: 5px;
+  display: block;
+}
+
+.message.sent .message-time {
+  color: #555555;
 }
 
 .chat-input-area {
   padding: 15px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   gap: 10px;
   align-items: center;
@@ -667,29 +627,33 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   font-size: 1.2rem;
 }
 
-#voice-btn {
-  background: linear-gradient(135deg, #8a2be2, #ff5aab);
+#voice-btn, #send-btn {
+  background: #ffffff;
+  color: #09090b;
 }
 
 #voice-btn.recording {
-  background: #ff0000;
+  background: #ff4444;
+  color: white;
   animation: recordPulse 2s infinite;
 }
 
 #call-btn {
-  background: linear-gradient(135deg, #00ff00, #008000);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @keyframes recordPulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+  50% { opacity: 0.8; transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 68, 68, 0.5); }
 }
 
 /* Room Setup */
 #room-setup {
   padding: 20px;
   text-align: center;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 15px;
   margin: 15px 0;
 }
@@ -697,18 +661,19 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
 #room-code-display {
   font-family: 'Roboto Mono', monospace;
   font-size: 1.5rem;
-  color: var(--accent-color);
+  color: #ffffff;
   margin: 15px 0;
   padding: 15px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.6s;
+  transition: all 0.4s;
 }
 
 #room-code-display:hover {
-  background: rgba(255,255,255,0.15);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
 }
 
 /* Menu */
@@ -720,9 +685,10 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   font-size: 1.1rem;
   padding: 0 15px;
   border-radius: 25px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
   color: var(--header-color);
   display: flex;
   align-items: center;
@@ -737,38 +703,44 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   flex-direction: column;
   gap: 10px;
   padding: 15px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
   border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   transform: translateX(-150%);
   opacity: 0;
-  transition: transform 0.6s ease-out, opacity 0.6s;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
 }
+
 #nav-menu.active {
   transform: translateX(0);
   opacity: 1;
 }
+
 #nav-menu button {
   width: 150px;
   padding: 10px 15px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
   box-shadow: none;
   border-radius: 10px;
 }
+
 #nav-menu button.active {
-  background: var(--button-gradient);
+  background: #ffffff;
+  color: #000;
 }
 
 .page {
   display: none;
   width: 100%;
-  animation: fadeIn 0.8s;
+  animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .page.active { display: block; }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -782,22 +754,22 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
   cursor: pointer;
   border-radius: 50%;
   transition: all 0.6s;
-  box-shadow: 0 0 10px rgba(255,255,255,0.3);
-  animation: float 3s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  animation: float 4s ease-in-out infinite;
 }
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 #sans-image:hover {
-  transform: scale(1.2) rotate(15deg);
-  box-shadow: 0 0 20px rgba(255,90,171,0.8);
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
 }
 #sans-counter {
   position: absolute;
   top: -5px; right: -5px;
-  background: #ff5aab;
-  color: white;
+  background: #ffffff;
+  color: #000000;
   border-radius: 50%;
   width: 20px; height: 20px;
   display: flex;
@@ -880,15 +852,16 @@ button:active::after, .choice-btn:active::after, .game-btn:active::after {
 
 #toast-container { position: fixed; top:20px; right:20px; z-index:9999;}
 .toast { 
-  background: rgba(255,255,255,0.2); 
+  background: rgba(20, 20, 20, 0.8); 
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff; 
   padding: 12px 18px; 
   margin-top: 8px; 
   border-radius: 12px; 
-  box-shadow:0 4px 12px rgba(0,0,0,0.5); 
-  backdrop-filter: blur(5px); 
+  box-shadow:0 8px 24px rgba(0,0,0,0.6); 
+  backdrop-filter: blur(10px); 
   font-weight:500; 
-  transition: all 0.6s; 
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); 
   opacity:0; 
   transform: translateX(100px);
   border-left: 4px solid var(--accent-color);
@@ -918,18 +891,17 @@ footer {
 a { 
   color: var(--accent-color); 
   text-decoration: none; 
-  transition: all 0.4s;
+  transition: all 0.3s;
   touch-action: manipulation;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
 }
 
-/* Заменяем hover на focus-visible для ссылок */
 a:focus-visible { 
   color: #fff; 
-  transform: scale(1.1);
-  outline: 2px solid rgba(255, 90, 171, 0.8);
+  transform: scale(1.05);
+  outline: 2px solid rgba(255, 255, 255, 0.5);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -938,7 +910,7 @@ a:focus-visible {
   a:active {
     color: #fff;
     transform: scale(0.95);
-    background: rgba(255, 90, 171, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     padding: 4px 8px;
     border-radius: 6px;
   }
@@ -952,7 +924,6 @@ a:focus-visible {
   100% { filter: hue-rotate(360deg); }
 }
 
-/* Touch-Friendly элементы */
 .touch-friendly {
   min-height: 44px;
   min-width: 44px;
@@ -961,7 +932,6 @@ a:focus-visible {
   cursor: pointer;
 }
 
-/* Voice player оптимизации */
 .voice-play-btn {
   touch-action: manipulation;
   min-width: 44px;
@@ -969,13 +939,11 @@ a:focus-visible {
   border-radius: 50%;
 }
 
-/* Navigation menu улучшения */
 #menu-btn, #nav-menu button {
   touch-action: manipulation;
   min-height: 44px;
 }
 
-/* Extra padding для кликабельных областей */
 .choice-btn, .game-btn {
   touch-action: manipulation;
   min-height: 48px;
@@ -995,8 +963,6 @@ a:focus-visible {
     width: 95%;
     margin: 12px auto;
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    
-    /* Безопасные зоны для устройств с вырезами */
     padding-left: max(12px, env(safe-area-inset-left));
     padding-right: max(12px, env(safe-area-inset-right));
   }
@@ -1005,9 +971,6 @@ a:focus-visible {
     padding: 16px;
     margin-bottom: 12px;
     border-radius: 12px;
-    
-    /* Touch-friendly */
-    touch-action: manipulation;
   }
   
   #menu-btn {
@@ -1023,20 +986,19 @@ a:focus-visible {
     top: calc(60px + env(safe-area-inset-top, 0px));
     left: calc(10px + env(safe-area-inset-left, 0px));
     padding: 12px;
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
   }
   
   #nav-menu button {
     width: 140px;
     padding: 12px 16px;
     min-height: 44px;
-    touch-action: manipulation;
   }
   
   #chat-messages {
     padding: 12px;
     min-height: 300px;
-    max-height: 50vh; /* Ограничиваем высоту для лучшего UX */
+    max-height: 50vh;
     -webkit-overflow-scrolling: touch;
   }
   
@@ -1049,20 +1011,17 @@ a:focus-visible {
   .chat-input-area {
     padding: 12px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(10px);
-    
-    /* Фиксируем внизу экрана */
+    background: rgba(10, 10, 10, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
     position: sticky;
     bottom: 0;
-    
-    /* Safe area для устройств с вырезами */
     padding-left: max(12px, env(safe-area-inset-left));
     padding-right: max(12px, env(safe-area-inset-right));
   }
   
   #chat-input {
-    font-size: 16px; /* Предотвращает zoom на iOS */
+    font-size: 16px; 
     min-height: 44px;
     padding: 12px 16px;
     padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
@@ -1078,10 +1037,8 @@ a:focus-visible {
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
-    touch-action: manipulation;
   }
   
-  /* Room Status Indicator */
   .room-status-indicator {
     position: fixed;
     top: calc(12px + env(safe-area-inset-top, 0px));
@@ -1091,16 +1048,15 @@ a:focus-visible {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--glass-bg);
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px);
     border-radius: 25px;
     padding: 8px 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     transition: all 0.3s ease;
     opacity: 0;
     pointer-events: none;
-    
-    /* Безопасные зоны */
     padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
     padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
   }
@@ -1111,12 +1067,12 @@ a:focus-visible {
   }
   
   .room-status-ball {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: #ff5aab;
+    background: #ffffff;
     animation: pulse 3s infinite;
-    box-shadow: 0 0 8px rgba(255,90,171,0.6);
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
     flex-shrink: 0;
   }
   
@@ -1126,8 +1082,8 @@ a:focus-visible {
   }
   
   .room-status-ball.offline {
-    background: #f44336;
-    box-shadow: 0 0 8px rgba(244,67,54,0.6);
+    background: #555555;
+    box-shadow: none;
   }
   
   .room-name {
@@ -1143,7 +1099,6 @@ a:focus-visible {
     opacity: 0.8;
   }
   
-  /* Mobile Footer */
   footer {
     margin: 16px 0;
     padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
@@ -1153,24 +1108,20 @@ a:focus-visible {
   
   .footer-links {
     gap: 15px;
-    touch-action: manipulation;
   }
   
   #sans-image {
     width: 40px;
     height: 40px;
-    touch-action: manipulation;
     min-height: 44px;
     min-width: 44px;
   }
   
-  /* Better mobile scrolling */
   .page {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
   
-  /* Mobile toast positioning */
   #toast-container {
     top: calc(15px + env(safe-area-inset-top, 0px));
     right: max(15px, env(safe-area-inset-right, 0px));
@@ -1180,7 +1131,6 @@ a:focus-visible {
   
   .toast {
     margin-top: 5px;
-    touch-action: manipulation;
     padding: 14px 18px;
     min-height: 44px;
     display: flex;
@@ -1188,7 +1138,6 @@ a:focus-visible {
   }
 }
 
-/* Extra small screens */
 @media (max-width: 480px) {
   h1 {
     font-size: 1.4rem;
@@ -1221,7 +1170,7 @@ a:focus-visible {
   }
   
   #chat-input {
-    font-size: 16px; /* Предотвращает zoom */
+    font-size: 16px; 
     padding: 12px 16px;
     padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   }
@@ -1259,7 +1208,6 @@ a:focus-visible {
     min-height: 44px;
   }
   
-  /* Sans button optimization */
   #sans-container {
     display: flex;
     align-items: center;
@@ -1275,47 +1223,42 @@ a:focus-visible {
   }
 }
 
-/* Desktop устройства (НЕ мобильные) */
 .desktop-device .container {
-  padding-bottom: 140px; /* Увеличиваем отступ для desktop */
+  padding-bottom: 140px; 
 }
 
 .desktop-device #chat-messages {
-  padding-bottom: 120px; /* Место для поля ввода */
-  max-height: 500px; /* Ограничиваем высоту для лучшего UX */
+  padding-bottom: 120px; 
+  max-height: 500px; 
 }
 
 .desktop-device .chat-input-area {
-  position: static !important; /* Убираем sticky на desktop */
+  position: static !important; 
   padding: 20px;
-  background: rgba(0,0,0,0.2);
-  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.05);
   border-radius: 0 0 15px 15px;
 }
 
-/* Отключаем keyboard-open эффект на desktop */
 .desktop-device.keyboard-open .chat-input-area {
   transform: none !important;
 }
 
-/* Улучшаем hover эффекты на desktop */
 .desktop-device .chat-input-area:hover {
-  background: rgba(0,0,0,0.25);
+  background: rgba(0,0,0,0.5);
 }
 
-/* Desktop cursor effects */
 .desktop-device button:hover, .desktop-device .card:hover {
   transform: translateY(-2px);
-  transition: all 0.6s;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Мобильные устройства - оставляем sticky позиционирование */
 .mobile-device .chat-input-area {
   position: sticky;
   bottom: 0;
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
+  background: rgba(10,10,10,0.8);
+  backdrop-filter: blur(15px);
 }
 
 /* Theme Toggle Button (in footer) */
@@ -1327,26 +1270,26 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(255,90,171,0.5);
-  background: var(--button-gradient);
-  transition: all 0.6s;
-  border: none;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s;
   cursor: pointer;
-  color: white;
+  color: #fff;
 }
 
 #theme-toggle:hover {
-  transform: translateY(-3px) scale(1.1);
-  box-shadow: 0 8px 25px rgba(255,90,171,0.7);
+  transform: translateY(-3px) scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
 }
 
 #theme-toggle:focus-visible {
-  outline: 2px solid rgba(255, 90, 171, 0.8);
+  outline: 2px solid rgba(255, 255, 255, 0.5);
   outline-offset: 2px;
-  transform: translateY(-2px) scale(1.05);
 }
 
-/* HACKER THEME - Matrix Style */
+/* HACKER THEME - Matrix Style (Оставлен как пасхалка) */
 .hacker-theme {
   --bg-color: linear-gradient(180deg, #000000, #0a0a0a, #001a00);
   --glass-bg: rgba(0, 20, 0, 0.7);
@@ -1389,7 +1332,6 @@ a:focus-visible {
   border: 1px solid var(--accent-color);
   box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
   font-family: 'Roboto Mono', monospace;
-  font-weight: 700;
 }
 
 .hacker-theme button:hover {
@@ -1402,14 +1344,12 @@ a:focus-visible {
   background: rgba(0, 20, 0, 0.6);
   border: 1px solid rgba(0, 255, 65, 0.5);
   color: var(--text-color);
-  font-family: 'Roboto Mono', monospace;
 }
 
 .hacker-theme input:focus,
 .hacker-theme textarea:focus {
   background: rgba(0, 30, 0, 0.8);
   box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
-  outline: none;
 }
 
 .hacker-theme .message.sent {
@@ -1422,29 +1362,13 @@ a:focus-visible {
   border: 1px solid rgba(0, 255, 65, 0.2);
 }
 
-/* Matrix Rain Effect */
 .hacker-theme::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   background-image:
-    repeating-linear-gradient(
-      0deg,
-      rgba(0, 255, 65, 0.03) 0px,
-      transparent 1px,
-      transparent 2px,
-      rgba(0, 255, 65, 0.03) 3px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 255, 65, 0.03) 0px,
-      transparent 1px,
-      transparent 2px,
-      rgba(0, 255, 65, 0.03) 3px
-    );
+    repeating-linear-gradient(0deg, rgba(0, 255, 65, 0.03) 0px, transparent 1px, transparent 2px, rgba(0, 255, 65, 0.03) 3px),
+    repeating-linear-gradient(90deg, rgba(0, 255, 65, 0.03) 0px, transparent 1px, transparent 2px, rgba(0, 255, 65, 0.03) 3px);
   z-index: 0;
   opacity: 0.3;
   pointer-events: none;
@@ -1453,35 +1377,20 @@ a:focus-visible {
 .hacker-theme::after {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
   z-index: 0;
   pointer-events: none;
-}
-
-@keyframes matrix-rain {
-  0% {
-    transform: translateY(-100%);
-  }
-  100% {
-    transform: translateY(100vh);
-  }
 }
 
 /* Game Modal Styles */
 .game-modal {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
   z-index: 5000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(8px);
 }
 
 .game-modal.active {
@@ -1491,16 +1400,15 @@ a:focus-visible {
 }
 
 .game-content {
-  background: var(--glass-bg);
+  background: rgba(25, 25, 25, 0.9);
   border-radius: 20px;
   padding: 0;
   max-width: 500px;
   width: 90%;
   max-height: 90%;
   overflow: hidden;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
 .game-header {
@@ -1508,8 +1416,8 @@ a:focus-visible {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .game-header h3 {
@@ -1521,15 +1429,15 @@ a:focus-visible {
   width: 35px;
   height: 35px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border: none;
   color: var(--text-color);
   cursor: pointer;
-  transition: all 0.6s;
+  transition: all 0.3s;
 }
 
 .close-game:hover {
-  background: rgba(255, 90, 171, 0.5);
+  background: rgba(255, 255, 255, 0.15);
   transform: scale(1.1);
 }
 
@@ -1542,13 +1450,12 @@ a:focus-visible {
   font-size: 1.2rem;
   margin-bottom: 20px;
   padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
   border-left: 4px solid var(--accent-color);
 }
 
-.round-info,
-.score-info {
+.round-info, .score-info {
   font-size: 1.1rem;
   margin: 15px 0;
   font-weight: 600;
@@ -1564,29 +1471,28 @@ a:focus-visible {
 
 .choice-btn {
   padding: 15px 25px;
-  border: 2px solid var(--accent-color);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-color);
-  border-radius: 15px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 600;
-  transition: all 0.6s;
+  transition: all 0.4s;
   min-width: 120px;
 }
 
 .choice-btn:hover {
-  background: var(--button-gradient);
-  color: #fff;
+  background: #ffffff;
+  color: #000;
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
 }
 
-/* Touch optimization для choice-btn */
 @media (hover: none) and (pointer: coarse) {
   .choice-btn:active {
-    background: var(--button-gradient);
-    color: #fff;
+    background: #ffffff;
+    color: #000;
     transform: translateY(1px) scale(0.95);
   }
 }
@@ -1612,27 +1518,26 @@ a:focus-visible {
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.6s;
+  transition: all 0.4s;
   min-width: 120px;
 }
 
 .game-btn.primary {
-  background: var(--button-gradient);
-  color: #fff;
+  background: #ffffff;
+  color: #000;
 }
 
 .game-btn.secondary {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-color);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .game-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
 }
 
-/* Touch optimization для game-btn */
 @media (hover: none) and (pointer: coarse) {
   .game-btn:active {
     transform: translateY(1px) scale(0.95);
@@ -1641,7 +1546,8 @@ a:focus-visible {
 
 .timer {
   margin-top: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 15px;
   position: relative;
@@ -1650,7 +1556,7 @@ a:focus-visible {
 
 .timer-bar {
   height: 8px;
-  background: linear-gradient(90deg, var(--accent-color), #ff5aab);
+  background: linear-gradient(90deg, #555555, #ffffff);
   border-radius: 4px;
   transition: width 1s linear;
   width: 100%;
@@ -1658,12 +1564,11 @@ a:focus-visible {
 
 .timer-text {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   font-weight: bold;
-  color: var(--text-color);
-  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.8);
   padding: 5px 10px;
   border-radius: 5px;
 }
@@ -1681,16 +1586,18 @@ a:focus-visible {
   height: 150px;
   object-fit: cover;
   border-radius: 15px;
-  transition: all 0.6s;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.5s;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  filter: grayscale(30%);
 }
 
 .homepage-image:hover {
   transform: scale(1.05);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  filter: grayscale(0%);
 }
 
-/* Touch optimization для изображений */
 @media (hover: none) and (pointer: coarse) {
   .homepage-image:active {
     transform: scale(0.98);
@@ -1698,94 +1605,47 @@ a:focus-visible {
   }
 }
 
-/* Mobile responsive for new elements */
 @media (max-width: 768px) {
   #theme-toggle {
     width: 45px;
     height: 45px;
     font-size: 1.1rem;
   }
-  
-  .game-content {
-    width: 95%;
-    margin: 20px;
-  }
-  
-  .game-body {
-    padding: 20px;
-  }
-  
-  .game-choices {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .choice-btn {
-    width: 100%;
-    max-width: 200px;
-  }
-  
-  .game-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .game-btn {
-    width: 100%;
-    max-width: 200px;
-  }
-  
-  .homepage-images {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-  }
-  
-  .homepage-image {
-    height: 120px;
-  }
+  .game-content { width: 95%; margin: 20px; }
+  .game-body { padding: 20px; }
+  .game-choices { flex-direction: column; align-items: center; }
+  .choice-btn { width: 100%; max-width: 200px; }
+  .game-actions { flex-direction: column; align-items: center; }
+  .game-btn { width: 100%; max-width: 200px; }
+  .homepage-images { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+  .homepage-image { height: 120px; }
 }
 
 @media (max-width: 480px) {
-  #theme-toggle {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-  
-  .homepage-images {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  
-  .homepage-image {
-    height: 100px;
-  }
+  #theme-toggle { width: 40px; height: 40px; font-size: 1rem; }
+  .homepage-images { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .homepage-image { height: 100px; }
 }
 
-/* ============ AMBIENT GLOW (свечение внизу) ============ */
+/* ============ AMBIENT GLOW (Свечение внизу) ============ */
 body::after {
   content: '';
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 300px;
-  background: radial-gradient(ellipse at bottom, rgba(255, 90, 171, 0.3) 0%, transparent 70%);
+  bottom: 0; left: 0; right: 0; height: 300px;
+  background: radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
 }
 
-/* Для хакерской темы другое свечение */
 .hacker-theme body::after {
-  background: radial-gradient(ellipse at bottom, rgba(0, 255, 65, 0.2) 0%, transparent 70%);
+  background: radial-gradient(ellipse at bottom, rgba(0, 255, 65, 0.15) 0%, transparent 70%);
 }
 
 /* ============ SCROLL REVEAL ANIMATIONS ============ */
 .scroll-reveal {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .scroll-reveal.revealed {
@@ -1793,79 +1653,43 @@ body::after {
   transform: translateY(0);
 }
 
-/* Разные задержки для последовательного появления */
-.scroll-reveal:nth-child(1) { transition-delay: 0.3s; }
-.scroll-reveal:nth-child(2) { transition-delay: 0.5s; }
+.scroll-reveal:nth-child(1) { transition-delay: 0.1s; }
+.scroll-reveal:nth-child(2) { transition-delay: 0.2s; }
 .scroll-reveal:nth-child(3) { transition-delay: 0.3s; }
 .scroll-reveal:nth-child(4) { transition-delay: 0.4s; }
 .scroll-reveal:nth-child(5) { transition-delay: 0.5s; }
 .scroll-reveal:nth-child(6) { transition-delay: 0.6s; }
 
-/* Альтернативная анимация - появление слева */
 .scroll-reveal-left {
-  opacity: 0;
-  transform: translateX(-50px);
+  opacity: 0; transform: translateX(-50px);
   transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
+.scroll-reveal-left.revealed { opacity: 1; transform: translateX(0); }
 
-.scroll-reveal-left.revealed {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Альтернативная анимация - появление справа */
 .scroll-reveal-right {
-  opacity: 0;
-  transform: translateX(50px);
+  opacity: 0; transform: translateX(50px);
   transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
+.scroll-reveal-right.revealed { opacity: 1; transform: translateX(0); }
 
-.scroll-reveal-right.revealed {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Анимация масштабирования */
 .scroll-reveal-scale {
-  opacity: 0;
-  transform: scale(0.9);
+  opacity: 0; transform: scale(0.9);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
 }
+.scroll-reveal-scale.revealed { opacity: 1; transform: scale(1); }
 
-.scroll-reveal-scale.revealed {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Финальные мобильные улучшения */
-
-/* Производительность анимаций */
 @media (max-width: 768px) {
   * {
     animation-duration: 0.5s !important;
-    transition-duration: 0.2s !important;
+    transition-duration: 0.3s !important;
   }
-  
-  /* Упрощенные анимации для мобильных */
-  .card, button, .choice-btn, .game-btn {
-    transition: transform 0.15s ease;
-  }
-  
-  .page {
-    animation: fadeIn 0.3s ease-out;
-  }
+  .card, button, .choice-btn, .game-btn { transition: transform 0.2s ease; }
+  .page { animation: fadeIn 0.4s ease-out; }
 }
 
-/* Предотвращение overscroll на мобильных */
-body {
-  overscroll-behavior: contain;
-}
+body { overscroll-behavior: contain; }
+.page { overscroll-behavior: contain; }
 
-.page {
-  overscroll-behavior: contain;
-}
-
-/* Улучшенный scroll для мобильных */
 @media (max-width: 768px) {
   #chat-messages {
     -webkit-overflow-scrolling: touch;
@@ -1874,252 +1698,90 @@ body {
   }
 }
 
-/* Оптимизация для landscape ориентации */
 @media (max-width: 768px) and (orientation: landscape) {
-  .container {
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-  }
-  
-  #chat-messages {
-    max-height: 40vh;
-  }
-  
-  .card {
-    padding: 12px;
-  }
-  
-  h1 {
-    font-size: 1.4rem;
-    margin-top: 8px;
-  }
+  .container { padding-bottom: calc(60px + env(safe-area-bottom, 0px)); }
+  #chat-messages { max-height: 40vh; }
+  .card { padding: 12px; }
+  h1 { font-size: 1.4rem; margin-top: 8px; }
 }
 
-/* Специальные стили для очень больших экранов */
 @media (min-width: 1200px) {
-  .container {
-    max-width: 900px;
-  }
-  
-  .card {
-    padding: 24px;
-  }
+  .container { max-width: 900px; }
+  .card { padding: 24px; }
 }
 
-/* Print styles */
 @media print {
-  .card {
-    background: white !important;
-    color: black !important;
-    box-shadow: none !important;
-  }
-  
-  button, #menu-btn, #nav-menu, footer {
-    display: none !important;
-  }
+  .card { background: white !important; color: black !important; box-shadow: none !important; }
+  button, #menu-btn, #nav-menu, footer { display: none !important; }
 }
 
-/* Анимация загрузки для PWA */
 .loading {
-  opacity: 0.7;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
+  opacity: 0.7; pointer-events: none; transition: opacity 0.3s ease;
 }
-
 .loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1.5s linear infinite;
+  content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+  margin: -10px 0 0 -10px; border: 2px solid rgba(255, 255, 255, 0.1); border-top-color: white;
+  border-radius: 50%; animation: spin 1s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Touch capable optimizations */
-.touch-capable {
-  /* Дополнительные touch оптимизации для устройств с поддержкой касаний */
-}
-
-.touch-capable button,
-.touch-capable .choice-btn,
-.touch-capable .game-btn {
-  /* Убираем outline на мобильных для чистого вида */
-}
-
-.touch-capable button:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* No touch optimizations - возвращаем hover эффекты */
 .no-touch button:hover,
 .no-touch .choice-btn:hover,
 .no-touch .game-btn:hover {
-  background: linear-gradient(90deg, #ff75c4, #a64ddb);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  filter: brightness(1.1);
+  box-shadow: 0 8px 20px rgba(255,255,255,0.1);
 }
 
-.no-touch .card:hover::before {
-  opacity: 1;
-}
+.no-touch .card:hover::before { opacity: 1; }
+.no-touch .card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.7); }
+.no-touch a:hover { color: #fff; transform: scale(1.1); }
 
-.no-touch .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.6);
-}
-
-.no-touch a:hover {
-  color: #fff;
-  transform: scale(1.1);
-}
-
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
-  .card {
-    border: 2px solid var(--accent-color);
-  }
-  
-  button {
-    border: 2px solid rgba(255, 255, 255, 0.3);
-  }
+  .card { border: 2px solid var(--accent-color); }
+  button { border: 2px solid rgba(255, 255, 255, 0.5); }
 }
 
-/* Focus indicators для keyboard navigation */
-*:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
+*:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
 
-/* Skip to main content link для accessibility */
 .skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
-  background: var(--accent-color);
-  color: white;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: 4px;
-  z-index: 10000;
+  position: absolute; top: -40px; left: 6px; background: var(--accent-color);
+  color: #000; padding: 8px; text-decoration: none; border-radius: 4px; z-index: 10000;
 }
-
-.skip-link:focus {
-  top: 6px;
-}
+.skip-link:focus { top: 6px; }
 
 /* Call Modal Styles */
 .call-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 6000;
-  backdrop-filter: blur(5px);
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.9); z-index: 6000; backdrop-filter: blur(10px);
+  flex-direction: column; justify-content: center; align-items: center;
 }
-
-.call-modal.active {
-  display: flex;
-}
-
+.call-modal.active { display: flex; }
 .call-content {
-  background: var(--glass-bg);
-  border-radius: 20px;
-  padding: 40px;
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background: rgba(20, 20, 20, 0.9); border-radius: 24px; padding: 40px; text-align: center;
+  max-width: 400px; width: 90%; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
-
-.call-status {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  color: var(--header-color);
-}
-
-.call-timer {
-  font-size: 1.2rem;
-  margin-bottom: 30px;
-  color: var(--text-color);
-  font-family: 'Roboto Mono', monospace;
-}
-
-.call-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
+.call-status { font-size: 1.5rem; margin-bottom: 20px; color: var(--header-color); }
+.call-timer { font-size: 1.2rem; margin-bottom: 30px; color: var(--text-color); font-family: 'Roboto Mono', monospace; }
+.call-buttons { display: flex; justify-content: center; gap: 20px; }
 .call-btn {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
+  width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
 }
-
-.call-btn.accept {
-  background: #4CAF50;
-}
-
-.call-btn.decline, .call-btn.end {
-  background: #f44336;
-}
-
-.call-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(255,255,255,0.3);
-}
+.call-btn.accept { background: #ffffff; color: #000; }
+.call-btn.decline, .call-btn.end { background: #222222; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+.call-btn:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
 
 @media (max-width: 480px) {
-  .call-content {
-    padding: 30px;
-  }
-  
-  .call-status {
-    font-size: 1.3rem;
-  }
-  
-  .call-timer {
-    font-size: 1rem;
-  }
-  
-  .call-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 1.3rem;
-  }
+  .call-content { padding: 30px; }
+  .call-status { font-size: 1.3rem; }
+  .call-timer { font-size: 1rem; }
+  .call-btn { width: 50px; height: 50px; font-size: 1.3rem; }
 }
