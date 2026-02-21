@@ -1873,21 +1873,23 @@ document.addEventListener("DOMContentLoaded", () => {
   fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`)
     .then(response => response.json())
     .then(data => {
+      // Ищем APK просто чтобы достать его размер (для инфы на кнопке)
       const apkAsset = data.assets && data.assets.find(asset => asset.name.endsWith('.apk'));
       
+      // ССЫЛКА: теперь ведет на страницу релиза, а не на сам файл
+      downloadBtn.href = data.html_url; 
+      downloadBtn.target = "_blank"; // Откроем в новой вкладке, чтобы сайт не закрылся
+
       if (apkAsset) {
-        // Устанавливаем прямую ссылку на поток файла
-        downloadBtn.href = apkAsset.browser_download_url;
-        
-        // ВАЖНО: Принудительно заставляем браузер качать, а не переходить
-        downloadBtn.setAttribute('download', '');
-        downloadBtn.setAttribute('target', '_self'); // Чтобы не плодить пустые вкладки
-        
         const sizeMB = (apkAsset.size / 1048576).toFixed(1);
+        // Текст кнопки: Скачать v1.0.4 (размер)
         downloadBtn.innerHTML = `<i class="fab fa-android"></i> Скачать ${data.tag_name} (${sizeMB} MB)`;
-        
-        console.log("Direct link set: " + apkAsset.browser_download_url);
+      } else {
+        downloadBtn.innerHTML = `<i class="fab fa-android"></i> Перейти к ${data.tag_name}`;
       }
     })
-    .catch(err => console.error("GitHub Fetch Error: ", err));
+    .catch(err => {
+      console.error("GitHub API Error: ", err);
+      // Если API Гитхаба упадет, кнопка останется со стандартной ссылкой из HTML
+    });
 });
