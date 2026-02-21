@@ -1865,31 +1865,29 @@ document.addEventListener('DOMContentLoaded', function() {
 // АВТООБНОВЛЕНИЕ ССЫЛКИ НА APK С GITHUB RELEASES (0xMewApp)
 // =====================================================================
 document.addEventListener("DOMContentLoaded", () => {
-  const githubRepo = '0xMewhx/SecureHxMessenger'; // Твой репозиторий
+  const githubRepo = '0xMewhx/SecureHxMessenger';
   const downloadBtn = document.querySelector('.download-link-btn');
 
-  // Если кнопки на странице нет - ничего не ломаем, просто выходим
   if (!downloadBtn) return;
 
   fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`)
     .then(response => response.json())
     .then(data => {
-      // Ищем первый попавшийся файл .apk в ассетах
       const apkAsset = data.assets && data.assets.find(asset => asset.name.endsWith('.apk'));
       
       if (apkAsset) {
-        // Меняем хардкодную ссылку на свежую из API
+        // Устанавливаем прямую ссылку на поток файла
         downloadBtn.href = apkAsset.browser_download_url;
         
-        // Вычисляем размер в мегабайтах
-        const sizeMB = (apkAsset.size / 1048576).toFixed(1);
+        // ВАЖНО: Принудительно заставляем браузер качать, а не переходить
+        downloadBtn.setAttribute('download', '');
+        downloadBtn.setAttribute('target', '_self'); // Чтобы не плодить пустые вкладки
         
-        // Обновляем текст, сохраняя твою иконку font-awesome
+        const sizeMB = (apkAsset.size / 1048576).toFixed(1);
         downloadBtn.innerHTML = `<i class="fab fa-android"></i> Скачать ${data.tag_name} (${sizeMB} MB)`;
+        
+        console.log("Direct link set: " + apkAsset.browser_download_url);
       }
     })
-    .catch(error => {
-      console.error('Ошибка GitHub API:', error);
-      // Если что-то упало (например, блокировка), кнопка просто останется со старой ссылкой "1.0", ничего не сломается.
-    });
+    .catch(err => console.error("GitHub Fetch Error: ", err));
 });
