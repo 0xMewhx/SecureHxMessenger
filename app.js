@@ -1861,3 +1861,35 @@ document.addEventListener('DOMContentLoaded', function() {
   setCSSVariables();
   window.addEventListener('resize', setCSSVariables);
 });
+// =====================================================================
+// АВТООБНОВЛЕНИЕ ССЫЛКИ НА APK С GITHUB RELEASES (0xMewApp)
+// =====================================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const githubRepo = '0xMewhx/SecureHxMessenger'; // Твой репозиторий
+  const downloadBtn = document.querySelector('.download-link-btn');
+
+  // Если кнопки на странице нет - ничего не ломаем, просто выходим
+  if (!downloadBtn) return;
+
+  fetch(`https://api.github.com/repos/${githubRepo}/releases/latest`)
+    .then(response => response.json())
+    .then(data => {
+      // Ищем первый попавшийся файл .apk в ассетах
+      const apkAsset = data.assets && data.assets.find(asset => asset.name.endsWith('.apk'));
+      
+      if (apkAsset) {
+        // Меняем хардкодную ссылку на свежую из API
+        downloadBtn.href = apkAsset.browser_download_url;
+        
+        // Вычисляем размер в мегабайтах
+        const sizeMB = (apkAsset.size / 1048576).toFixed(1);
+        
+        // Обновляем текст, сохраняя твою иконку font-awesome
+        downloadBtn.innerHTML = `<i class="fab fa-android"></i> Скачать ${data.tag_name} (${sizeMB} MB)`;
+      }
+    })
+    .catch(error => {
+      console.error('Ошибка GitHub API:', error);
+      // Если что-то упало (например, блокировка), кнопка просто останется со старой ссылкой "1.0", ничего не сломается.
+    });
+});
