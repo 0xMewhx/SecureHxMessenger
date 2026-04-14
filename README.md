@@ -23,7 +23,6 @@ The site runs entirely in the browser (no server-side crypto) and helps two peop
 
 ## Usage
 
-1. Open the site: [Secure Chat](https://pokox3proyoyo-dot.github.io/iugfdssss/)
 2. Click **Generate key pair** → copy your public key.
 3. Send your public key to your peer.
 4. Paste your peer's public key in the field → click **Import** and verify the fingerprint.
@@ -47,7 +46,7 @@ The site runs entirely in the browser (no server-side crypto) and helps two peop
 Simply open the site in a modern browser with WebCrypto support (HTTPS recommended).  
 No downloads or installations are required.  
 
-Site link: [https://pokox3proyoyo-dot.github.io/iugfdssss/](https://pokox3proyoyo-dot.github.io/iugfdssss/)
+Site link: [https://hex.0xmew.site/](https://pokox3proyoyo-dot.github.io/iugfdssss/)
 
 ---
 
