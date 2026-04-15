@@ -23,7 +23,7 @@ The site runs entirely in the browser (no server-side crypto) and helps two peop
 
 ## Usage
 
-2. Click **Generate key pair** → copy your public key.
+1. Click **Generate key pair** → copy your public key.
 3. Send your public key to your peer.
 4. Paste your peer's public key in the field → click **Import** and verify the fingerprint.
 5. To send a message: type it → click **Encrypt** → copy the ciphertext and send.
