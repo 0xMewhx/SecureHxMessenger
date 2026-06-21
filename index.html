@@ -1,26 +1,25 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>0xMew Hax Messenger 💬🔐</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="styles.css">
-<meta name="theme-color" content="#ff5aab">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="0xMew Hax">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="0xMew Hax Messenger">
-<meta name="description" content="Безопасный мессенджер с end-to-end шифрованием в реальном времени">
-<meta name="keywords" content="messenger, secure, encrypted, chat, privacy, pwa">
-<meta property="og:title" content="Secure Hax Messenger">
-<meta property="og:description" content="Безопасный мессенджер с end-to-end шифрованием">
-<meta property="og:type" content="website">
-<meta property="og:image" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23ff5aab' rx='100'/><text x='256' y='330' text-anchor='middle' font-size='256' fill='white'>💬</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>0xMew Hax Messenger</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💬</text></svg>">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="0xMew Hax">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="0xMew Hax Messenger">
+  <meta name="description" content="Безопасный мессенджер с end-to-end шифрованием в реальном времени">
+  <meta name="keywords" content="messenger, secure, encrypted, chat, privacy, pwa">
+  <meta property="og:title" content="0xMew Hax Messenger">
+  <meta property="og:description" content="Безопасный мессенджер с end-to-end шифрованием">
+  <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
@@ -28,7 +27,6 @@
 
 <button id="menu-btn">≡ Menu</button>
 
-<!-- Room Status Indicator -->
 <div class="room-status-indicator" id="room-status-indicator">
   <div class="room-status-ball" id="room-status-ball"></div>
   <div class="room-info">
@@ -41,25 +39,28 @@
 <div id="game-modal" class="game-modal">
   <div class="game-content">
     <div class="game-header">
-      <h3 id="game-title">Игра Камень-Ножницы-Бумага</h3>
-      <button class="close-game" id="close-game-btn">✖</button>
+      <h3 id="game-title">Камень — Ножницы — Бумага</h3>
+      <button class="close-game" id="close-game-btn" aria-label="Закрыть">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div class="game-body">
-      <div id="game-status"></div>
+      <div id="game-status" class="game-status"></div>
       <div class="round-info">Раунд: <span id="current-round">1</span> / 3</div>
       <div class="score-info">
-        <span id="my-score">Ваш счет: 0</span> |
-        <span id="opponent-score">Счет противника: 0</span>
+        <span id="my-score">Вы: 0</span>
+        <span class="score-divider">|</span>
+        <span id="opponent-score">Противник: 0</span>
       </div>
       <div class="game-choices" id="game-choices">
-        <button class="choice-btn" data-choice="rock">🪨 Камень</button>
-        <button class="choice-btn" data-choice="paper">📄 Бумага</button>
-        <button class="choice-btn" data-choice="scissors">✂️ Ножницы</button>
+        <button class="choice-btn" data-choice="rock">Камень</button>
+        <button class="choice-btn" data-choice="paper">Бумага</button>
+        <button class="choice-btn" data-choice="scissors">Ножницы</button>
       </div>
       <div class="game-actions">
-        <button id="accept-game-btn" class="game-btn primary">Играть!</button>
+        <button id="accept-game-btn" class="game-btn primary">Играть</button>
         <button id="decline-game-btn" class="game-btn secondary">Отклонить</button>
-        <button id="play-again-btn" class="game-btn primary" style="display:none;">Сыграть ещё</button>
+        <button id="play-again-btn" class="game-btn primary" style="display:none;">Ещё раз</button>
       </div>
       <div class="timer">
         <div class="timer-bar" id="timer-bar"></div>
@@ -74,193 +75,196 @@
   <div class="call-content">
     <div class="call-status" id="call-status">Звонок...</div>
     <div class="call-timer" id="call-timer">00:00</div>
-    <div class="call-buttons" id="call-buttons">
-      <!-- Buttons will be added dynamically based on state -->
-    </div>
+    <div class="call-buttons" id="call-buttons"></div>
   </div>
 </div>
 
 <nav id="nav-menu">
-  <button data-page="home" class="active">🏠 Главная</button>
-  <button data-page="chat">💬 Чат</button>
-  <button data-page="setup">🔑 Настройка</button>
+  <button data-page="home" class="active">Главная</button>
+  <button data-page="chat">Чат</button>
+  <button data-page="setup">Настройка</button>
 </nav>
 
 <div class="container">
+
+  <!-- ── CHAT PAGE ───────────────────────────────────────── -->
   <div id="chat-page" class="page">
-    <h1>💬 Secure Chat</h1>
-    
+    <h1>Secure Chat</h1>
+
     <div class="card">
-      <div class="chat-status" id="chat-status">🔒 Не подключено</div>
+      <div class="chat-status" id="chat-status">Не подключено</div>
     </div>
-    
+
     <div class="card" id="room-setup">
-    <h4>Создать или подключиться</h4>
-    <button id="create-room-btn">🆕 Создать комнату</button>
-    <div style="margin: 15px 0;">— или —</div>
-    <input type="text" id="join-room-input" placeholder="Введите код комнаты..." maxlength="20">
-    <button id="join-room-btn">🚪 Подключиться</button>
-      
+      <h4>Создать или подключиться</h4>
+      <button id="create-room-btn">Создать комнату</button>
+      <div class="room-divider">— или —</div>
+      <input type="text" id="join-room-input" placeholder="Код комнаты..." maxlength="20">
+      <button id="join-room-btn">Подключиться</button>
       <div id="room-code-display" style="display:none;"></div>
     </div>
-    
+
     <div class="card" id="chat-messages" style="display:none;">
       <div class="typing-indicator" id="typing-indicator">
-        <span style="font-size: 0.85rem;">Печатает</span>
+        <span class="typing-label">Печатает</span>
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
       </div>
     </div>
-    
+
     <div class="card chat-input-area" style="display:none;" id="chat-input-area">
-      <input type="text" id="chat-input" placeholder="Введите сообщение...">
-      <button id="voice-btn" title="Голосовое сообщение">🎤</button>
-      <button id="call-btn" title="Позвонить">📞</button>
-      <button id="send-btn">📤</button>
+      <input type="text" id="chat-input" placeholder="Сообщение...">
+      <button id="voice-btn" title="Голосовое сообщение" aria-label="Записать голосовое">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button id="call-btn" title="Позвонить" aria-label="Позвонить">
+        <i class="fas fa-phone"></i>
+      </button>
+      <button id="send-btn" aria-label="Отправить">
+        <i class="fas fa-paper-plane"></i>
+      </button>
     </div>
   </div>
-  <div id="home-page" class="page active">
-    <h1>Secure Hax Messenger 💬🔐</h1>
 
-    <div id="socks-message">🧦 SOCKS MODE! 🧦</div>
+  <!-- ── HOME PAGE ───────────────────────────────────────── -->
+  <div id="home-page" class="page active">
+    <h1>0xMew Hax Messenger</h1>
+
+    <div id="socks-message">SOCKS MODE</div>
     <div id="confetti-container"></div>
 
-    <div class="card scroll-reveal" style="text-align: center;">
-      <h2>🎮 Добро пожаловать в будущее мессенджеров!</h2>
+    <div class="card scroll-reveal">
       <div class="homepage-images">
         <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=150&fit=crop" alt="Cybersecurity" class="homepage-image">
         <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&h=150&fit=crop" alt="Encrypted Communication" class="homepage-image">
         <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=300&h=150&fit=crop" alt="Modern Interface" class="homepage-image">
       </div>
-      <p style="text-align: left;">
-        <strong>0xMew Hax Messenger</strong> — это не просто чат. Это полноценный мессенджер с <strong>военным уровнем шифрования</strong>, работающий в реальном времени прямо в браузере!
+      <p>
+        <strong>0xMew Hax Messenger</strong> — мессенджер с военным уровнем шифрования, работающий в реальном времени прямо в браузере.
       </p>
-      <div style="margin: 20px 0; padding: 15px; background: rgba(255,90,171,0.1); border-radius: 10px; border-left: 4px solid var(--accent-color);">
-        <strong>🔒 Почему это безопасно?</strong><br>
-        Все сообщения шифруются <strong>end-to-end</strong> с помощью TweetNaCl. Даже сервер не видит содержимое ваших сообщений!
+      <div class="info-block">
+        <strong>Почему это безопасно?</strong>
+        <p>Все сообщения шифруются end-to-end с помощью TweetNaCl. Даже сервер не видит содержимое ваших переписок.</p>
       </div>
     </div>
 
     <div class="card scroll-reveal">
-      <h2>✨ Возможности</h2>
-      <div style="display: grid; gap: 15px; margin-top: 15px;">
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>🔐 End-to-End шифрование</strong><br>
-          <small>Ваши ключи генерируются локально. Никто не имеет к ним доступа.</small>
+      <h2>Возможности</h2>
+      <div class="app-features-grid">
+        <div class="app-feature-item">
+          <strong>End-to-End шифрование</strong>
+          <p>Ключи генерируются локально. Никто не имеет к ним доступа.</p>
         </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>⚡ Мгновенные сообщения</strong><br>
-          <small>Технология Firebase Realtime Database для обмена в реальном времени.</small>
+        <div class="app-feature-item">
+          <strong>Мгновенные сообщения</strong>
+          <p>Firebase Realtime Database для обмена без задержек.</p>
         </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>🚫 Без регистрации</strong><br>
-          <small>Никаких номеров телефонов, email или персональных данных.</small>
+        <div class="app-feature-item">
+          <strong>Без регистрации</strong>
+          <p>Никаких номеров телефонов, email или персональных данных.</p>
         </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>👀 Индикатор печати</strong><br>
-          <small>Видите когда собеседник печатает сообщение</small>
+        <div class="app-feature-item">
+          <strong>Индикатор печати</strong>
+          <p>Видите когда собеседник набирает сообщение.</p>
         </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>🎤 Голосовые сообщения</strong><br>
-          <small>Записывайте и отправляйте голосовые сообщения одним кликом!</small>
+        <div class="app-feature-item">
+          <strong>Голосовые сообщения</strong>
+          <p>Запись и отправка одним нажатием.</p>
         </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>📞 Голосовые звонки</strong><br>
-          <small>Звоните собеседнику прямо в чате (без видео).</small>
-        </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>🎨 Красивый интерфейс</strong><br>
-          <small>Современный дизайн с анимациями и спецэффектами.</small>
-        </div>
-        <div style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-          <strong>🧦 Секретные режимы</strong><br>
-          <small>Easter eggs и скрытые функции для самых внимательных...</small>
+        <div class="app-feature-item">
+          <strong>Голосовые звонки</strong>
+          <p>Звонки прямо в чате, без видео.</p>
         </div>
       </div>
     </div>
-        <div class="download-btn-container scroll-reveal">
+
+    <div class="download-btn-container scroll-reveal">
       <a href="https://github.com/0xMewhx/SecureHxMessenger/releases/download/1.0/0xMewApp.apk" class="download-link-btn">
-        <i class="fab fa-android"></i> Скачать для android
+        <i class="fab fa-android"></i> Скачать для Android
       </a>
     </div>
 
-    <div class="card scroll-reveal" style="border: 1px solid var(--accent-color);">
-      <h2>🔥 Мобильное приложение уже здесь!</h2>
-      <p style="text-align: left;">
-        Зачем ограничиваться браузером? Качай официальное приложение <strong>0xMew Hax</strong> для Android и получи максимум возможностей!
-      </p>
+    <div class="card scroll-reveal card--accent">
+      <h2>Мобильное приложение</h2>
+      <p>Нативный клиент для Android с полным набором функций мессенджера.</p>
       <div class="app-features-grid">
         <div class="app-feature-item">
-           🚀 <strong>Супер-скорость:</strong> Нативный код работает быстрее браузера.
+          <strong>Производительность</strong>
+          <p>Нативный код работает быстрее браузерной версии.</p>
         </div>
         <div class="app-feature-item">
-           🔔 <strong>Шифрование:</strong> E2E шифрование, каждому юзеру - свой ключ шифрования.
+          <strong>Шифрование</strong>
+          <p>E2E, каждому пользователю — свой ключ.</p>
         </div>
         <div class="app-feature-item">
-           📱 <strong>Удобство:</strong> Адаптировано специально под твой смарт.
+          <strong>Адаптивность</strong>
+          <p>Интерфейс оптимизирован под мобильные устройства.</p>
         </div>
       </div>
     </div>
 
     <div class="card scroll-reveal">
-      <h2>🚀 Как начать?</h2>
-      <ol style="text-align: left; line-height: 2; font-size: 1.05rem;">
-        <li><strong>Перейдите во вкладку 💬 Чат</strong> в меню</li>
-        <li><strong>Создайте комнату</strong> — получите уникальный код (например: HAX-A1B2C3)</li>
-        <li><strong>Поделитесь кодом</strong> с другом любым способом</li>
-        <li><strong>Дождитесь подключения</strong> — увидите статус "🟢 Подключено!"</li>
-        <li><strong>Общайтесь безопасно!</strong> Текстовые и голосовые сообщения (кнопка 🎤) 🔐</li>
+      <h2>Как начать</h2>
+      <ol class="steps-list">
+        <li>Перейдите во вкладку <strong>Чат</strong></li>
+        <li>Создайте комнату — получите уникальный код вида <code>HAX-A1B2C3</code></li>
+        <li>Поделитесь кодом с собеседником</li>
+        <li>Дождитесь подключения — статус сменится на «Подключено»</li>
+        <li>Общайтесь — текстом или голосом</li>
       </ol>
     </div>
 
     <div class="card scroll-reveal">
-      <h2>🛡️ Технологии</h2>
-      <p style="text-align: left; line-height: 1.8;">
-        <strong>TweetNaCl</strong> — криптографическая библиотека, используемая в Signal и других защищённых мессенджерах.<br>
-        <strong>Firebase Realtime Database</strong> — для синхронизации в реальном времени.<br>
-        <strong>Asymmetric Encryption</strong> — публичные/приватные ключи для безопасного обмена.<br>
-        <strong>Client-side only</strong> — весь код выполняется в вашем браузере.
-      </p>
+      <h2>Технологии</h2>
+      <dl class="tech-list">
+        <dt>TweetNaCl</dt>
+        <dd>Криптографическая библиотека, используемая в Signal и других защищённых мессенджерах.</dd>
+        <dt>Firebase Realtime Database</dt>
+        <dd>Синхронизация сообщений в реальном времени.</dd>
+        <dt>Asymmetric Encryption</dt>
+        <dd>Публичные и приватные ключи для безопасного обмена.</dd>
+        <dt>Client-side only</dt>
+        <dd>Весь код выполняется в вашем браузере.</dd>
+      </dl>
     </div>
 
-    <div class="card scroll-reveal" style="background: rgba(255,90,171,0.1); border: 2px solid var(--accent-color);">
-      <h2>⚠️ Важно знать</h2>
-      <ul style="text-align: left; line-height: 1.8;">
-        <li>Сообщения <strong>не сохраняются</strong> после закрытия комнаты</li>
-        <li>Один код комнаты = <strong>одна пара</strong> собеседников</li>
-        <li>Не делитесь кодом комнаты публично</li>
-        <li>Храните свои ключи в безопасности</li>
-        <li>Это <strong>beta-версия</strong> — возможны баги</li>
+    <div class="card scroll-reveal card--warning">
+      <h2>Важно</h2>
+      <ul class="plain-list">
+        <li>Сообщения не сохраняются после закрытия комнаты</li>
+        <li>Один код комнаты — одна пара собеседников</li>
+        <li>Не публикуйте код комнаты в открытом доступе</li>
+        <li>Это beta-версия — возможны баги</li>
       </ul>
     </div>
 
     <div class="card scroll-reveal">
-      <h2>🎭 Пасхалки</h2>
-      <p style="text-align: left; color: var(--header-color);">
-        💀 Кликни на <strong>Sans</strong> внизу страницы 3 раза...<br>
-        🧦 Введи слово "<strong>socks</strong>" в чате...<br>
-        🎵 Исследуй интерфейс — найдёшь ещё сюрпризы!
-      </p>
+      <h2>Пасхалки</h2>
+      <p>Кликни на Sans внизу страницы три раза.<br>
+      Введи слово <code>socks</code> в чате.<br>
+      Исследуй — найдёшь ещё.</p>
     </div>
   </div>
 
+  <!-- ── SETUP PAGE ───────────────────────────────────────── -->
   <section id="setup-page" class="page">
-    <h1>🔑 Настройка ключей</h1>
+    <h1>Настройка ключей</h1>
 
     <div class="card">
       <h2>Генерация ключей</h2>
       <p>Ключи генерируются автоматически при создании комнаты.</p>
-      <button id="manual-gen">🔄 Перегенерировать ключи</button>
-      
-      <div id="key-info" style="margin-top: 15px; display:none;">
-        <label>Ваш публичный ключ:</label>
+      <button id="manual-gen">Перегенерировать ключи</button>
+
+      <div id="key-info" style="display:none;" class="key-info">
+        <label for="pub-key-display">Ваш публичный ключ</label>
         <textarea id="pub-key-display" rows="3" readonly></textarea>
-        <small style="opacity:0.7;">Отпечаток: <code id="key-fp">N/A</code></small>
+        <small>Отпечаток: <code id="key-fp">N/A</code></small>
       </div>
     </div>
   </section>
-</div>
+
+</div><!-- /.container -->
 
 <div id="toast-container"></div>
 
@@ -268,20 +272,24 @@
   <div class="footer-links">
     <div id="sans-container">
       <img id="sans-image"
-           src="https://avatanplus.com/files/resources/mid/57b39ece5502b15695a4560c.png">
+           src="https://avatanplus.com/files/resources/mid/57b39ece5502b15695a4560c.png"
+           alt="Sans"
+           draggable="false">
       <div id="sans-counter">0</div>
     </div>
-    <button id="theme-toggle">🎨</button>
-    <a href="https://t.me/bluzn" target="_blank" title="Telegram">
+    <button id="theme-toggle" aria-label="Сменить тему">
+      <i class="fas fa-palette"></i>
+    </button>
+    <a href="https://t.me/bluzn" target="_blank" rel="noopener" title="Telegram" aria-label="Telegram">
       <i class="fab fa-telegram fa-2x"></i>
     </a>
   </div>
-  <small style="margin-top: 10px;">
-    © 2025 0xMew Inc. | Made with beer by 0xMew
- </small>
+  <small>© 2025 0xMew Inc. — made with beer by 0xMew</small>
 </footer>
+
 <script src="nacl.min.js"></script>
 <script src="nacl-util.min.js"></script>
-<script type="module" src="app.js"></script>```
+<script type="module" src="app.js"></script>
+
 </body>
 </html>
