@@ -129,11 +129,15 @@
 
   <!-- ── HOME PAGE ───────────────────────────────────────── -->
   <div id="home-page" class="page active">
-    <div class="bento-layout">
-    <h1 class="bento-title">0xMew Hax Messenger</h1>
-    <div class="bento-grid">
+
+    <!-- Easter egg overlays: must be OUTSIDE bento-grid or nth-child breaks -->
     <div id="socks-message">SOCKS MODE</div>
     <div id="confetti-container"></div>
+
+    <div class="bento-layout">
+      <h1 class="bento-title">0xMew Hax Messenger</h1>
+      <div class="bento-grid">
+
     <div class="card scroll-reveal">
       <div class="homepage-images">
         <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=150&fit=crop" alt="Cybersecurity" class="homepage-image">
@@ -245,7 +249,10 @@
       Введи слово <code>socks</code> в чате.<br>
       Исследуй — найдёшь ещё.</p>
     </div>
-  </div>
+
+      </div><!-- /.bento-grid -->
+    </div><!-- /.bento-layout -->
+  </div><!-- /#home-page -->
 
   <!-- ── SETUP PAGE ───────────────────────────────────────── -->
   <section id="setup-page" class="page">
