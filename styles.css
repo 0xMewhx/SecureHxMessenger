@@ -1914,11 +1914,49 @@ footer {
 
 
 /* ═══════════════════════════════════════════════════════════
-   BENTO GRID — Home Page Layout
-   Replaces vertical card stack with a mosaic grid.
-   Add class="bento-grid" to the #home-page container div
-   that wraps your cards.
+   BENTO GRID — Home Page Layout v2
+   HTML structure needed:
+   
+   <div id="home-page" class="page active">
+     <div class="bento-layout">
+       <h1 class="bento-title">0xMew Hax Messenger</h1>
+       <div class="bento-grid">
+         cards here...
+       </div>
+     </div>
+   </div>
    ═══════════════════════════════════════════════════════════ */
+
+/* ── BENTO LAYOUT WRAPPER (title left + grid right) ──────── */
+.bento-layout {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  width: 100%;
+  margin-top: var(--space-5);
+}
+
+/* Rotated vertical title on the left */
+.bento-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  margin: 0;
+  padding: var(--space-4) 0;
+  flex-shrink: 0;
+  opacity: 0.18;
+  user-select: none;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--glass-border);
+  padding-right: var(--space-3);
+}
 
 /* ── GRID CONTAINER ───────────────────────────────────────── */
 .bento-grid {
@@ -1926,131 +1964,108 @@ footer {
   grid-template-columns: repeat(12, 1fr);
   grid-auto-rows: 80px;
   gap: 10px;
-  width: 100%;
-  margin-top: var(--space-5);
+  flex: 1;
+  min-width: 0; /* prevent overflow past flex parent */
 }
 
-/* All cards inside the bento reset margin */
-.bento-grid .card,
-.bento-grid .download-btn-container {
+/* All cards inside bento: reset margin, clip content */
+.bento-grid .card {
   margin-bottom: 0;
+  overflow: hidden;     /* prevent content blowing out grid cell */
+  min-height: 0;        /* allow grid to shrink cell correctly */
 }
 
 /* ── CARD SPANS ───────────────────────────────────────────── */
 
-/* Hero card — full width, tall */
+/* 1. Hero — full width */
 .bento-grid .card:nth-child(1) {
   grid-column: 1 / -1;
   grid-row: span 4;
 }
 
-/* Features — left 7 cols, medium tall */
+/* 2. Features — left 7 cols */
 .bento-grid .card:nth-child(2) {
   grid-column: 1 / 8;
-  grid-row: span 5;
+  grid-row: span 6;
 }
 
-/* Download button — right 5 cols */
+/* 3. Download — right 5 cols, no box styling, just centers the button */
 .bento-grid .download-btn-container {
   grid-column: 8 / -1;
   grid-row: span 2;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  margin: 0;
-  padding: var(--space-4);
-  position: relative;
-  overflow: hidden;
 }
 
-/* Shimmer on download container too */
-.bento-grid .download-btn-container::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.15) 40%,
-    rgba(255,255,255,0.15) 60%,
-    transparent 100%
-  );
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-/* Mobile app card — right 5 cols, below download */
+/* 4. Mobile app — right 5 cols */
 .bento-grid .card:nth-child(4) {
   grid-column: 8 / -1;
-  grid-row: span 3;
+  grid-row: span 4;
 }
 
-/* How to start — left 5 cols */
+/* 5. How to start — left 5 cols */
 .bento-grid .card:nth-child(5) {
   grid-column: 1 / 6;
-  grid-row: span 4;
+  grid-row: span 5;
 }
 
-/* Tech — right 7 cols */
+/* 6. Tech — right 7 cols */
 .bento-grid .card:nth-child(6) {
   grid-column: 6 / -1;
-  grid-row: span 4;
+  grid-row: span 5;
 }
 
-/* Warning — left 6 cols */
+/* 7. Warning — left 7 cols, enough padding */
 .bento-grid .card:nth-child(7) {
-  grid-column: 1 / 7;
-  grid-row: span 3;
+  grid-column: 1 / 8;
+  grid-row: span 4;
+  padding-bottom: var(--space-6);
 }
 
-/* Easter eggs — right 6 cols */
+/* 8. Easter eggs — right 5 cols */
 .bento-grid .card:nth-child(8) {
-  grid-column: 7 / -1;
-  grid-row: span 3;
-}
-
-/* ── CARD INNER ADJUSTMENTS ───────────────────────────────── */
-
-/* Hero card: image + text side by side */
-.bento-grid .card:nth-child(1) .homepage-images {
-  margin: 0 0 var(--space-4);
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
-}
-
-.bento-grid .card:nth-child(1) .homepage-image {
-  height: 120px;
-}
-
-/* Features grid: 2 cols inside the card */
-.bento-grid .card:nth-child(2) .app-features-grid {
-  grid-template-columns: 1fr 1fr;
-}
-
-/* Mobile app card: tighter grid */
-.bento-grid .card:nth-child(4) .app-features-grid {
-  grid-template-columns: 1fr;
-  margin-top: var(--space-3);
-}
-
-/* Easter eggs card: center content */
-.bento-grid .card:nth-child(8) {
+  grid-column: 8 / -1;
+  grid-row: span 4;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-/* Warning card accent border */
-.bento-grid .card--warning {
-  border-color: rgba(245,158,11,0.3);
+/* ── CARD INNER ADJUSTMENTS ───────────────────────────────── */
+.bento-grid .card:nth-child(1) .homepage-images {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
-/* ── HOVER LIFT on bento cards ────────────────────────────── */
+.bento-grid .card:nth-child(1) .homepage-image { height: 100px; }
+
+.bento-grid .card:nth-child(2) .app-features-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.bento-grid .card:nth-child(4) .app-features-grid {
+  grid-template-columns: 1fr;
+  margin-top: var(--space-2);
+}
+
+/* Overflow scroll on tall cards if content is too long */
+.bento-grid .card:nth-child(5),
+.bento-grid .card:nth-child(6) {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.bento-grid .card:nth-child(5)::-webkit-scrollbar,
+.bento-grid .card:nth-child(6)::-webkit-scrollbar { display: none; }
+
+/* ── HOVER ────────────────────────────────────────────────── */
 .no-touch .bento-grid .card:hover {
   transform: translateY(-3px) scale(1.005);
   box-shadow: var(--shadow-lg), var(--shadow-glow), inset 0 1px 0 rgba(255,255,255,0.08);
@@ -2058,15 +2073,8 @@ footer {
   z-index: 2;
 }
 
-.no-touch .bento-grid .download-btn-container:hover {
-  border-color: var(--glass-border-strong);
-  box-shadow: var(--shadow-lg), var(--shadow-glow);
-  transform: translateY(-3px);
-}
-
-/* ── SCROLL REVEAL override for bento ────────────────────────*/
-/* nth-child delays won't work well in a grid — flatten them */
-.bento-grid .scroll-reveal { transition-delay: 0s; }
+/* ── SCROLL REVEAL ────────────────────────────────────────── */
+.bento-grid .scroll-reveal          { transition-delay: 0s; }
 .bento-grid .scroll-reveal:nth-child(1) { transition-delay: 0.05s; }
 .bento-grid .scroll-reveal:nth-child(2) { transition-delay: 0.10s; }
 .bento-grid .scroll-reveal:nth-child(3) { transition-delay: 0.15s; }
@@ -2076,7 +2084,7 @@ footer {
 .bento-grid .scroll-reveal:nth-child(7) { transition-delay: 0.35s; }
 .bento-grid .scroll-reveal:nth-child(8) { transition-delay: 0.40s; }
 
-/* ── RESPONSIVE: tablet ───────────────────────────────────── */
+/* ── TABLET ───────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .bento-grid {
     grid-template-columns: repeat(6, 1fr);
@@ -2085,30 +2093,51 @@ footer {
   }
 
   .bento-grid .card:nth-child(1) { grid-column: 1 / -1; grid-row: span 5; }
-  .bento-grid .card:nth-child(2) { grid-column: 1 / -1; grid-row: span 6; }
+  .bento-grid .card:nth-child(2) { grid-column: 1 / -1; grid-row: span 7; }
   .bento-grid .download-btn-container { grid-column: 1 / -1; grid-row: span 2; }
   .bento-grid .card:nth-child(4) { grid-column: 1 / -1; grid-row: span 4; }
-  .bento-grid .card:nth-child(5) { grid-column: 1 / 4; grid-row: span 5; }
-  .bento-grid .card:nth-child(6) { grid-column: 4 / -1; grid-row: span 5; }
-  .bento-grid .card:nth-child(7) { grid-column: 1 / -1; grid-row: span 3; }
-  .bento-grid .card:nth-child(8) { grid-column: 1 / -1; grid-row: span 2; }
+  .bento-grid .card:nth-child(5) { grid-column: 1 / 4; grid-row: span 6; }
+  .bento-grid .card:nth-child(6) { grid-column: 4 / -1; grid-row: span 6; }
+  .bento-grid .card:nth-child(7) { grid-column: 1 / -1; grid-row: span 4; padding-bottom: var(--space-6); }
+  .bento-grid .card:nth-child(8) { grid-column: 1 / -1; grid-row: span 3; }
 
   .bento-grid .card:nth-child(2) .app-features-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* ── RESPONSIVE: mobile — falls back to plain stack ──────── */
+/* ── MOBILE — flat stack, title goes back horizontal ─────── */
 @media (max-width: 640px) {
+  .bento-layout {
+    flex-direction: column;
+  }
+
+  .bento-title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    opacity: 1;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0 0 var(--space-4);
+    font-size: var(--text-2xl);
+    letter-spacing: -0.02em;
+  }
+
   .bento-grid {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
   }
 
+  .bento-grid .card:nth-child(7) {
+    padding-bottom: var(--space-5);
+  }
+
   .bento-grid .download-btn-container {
-    padding: var(--space-6);
-    min-height: 100px;
+    padding: var(--space-6) 0;
+    min-height: 90px;
+    background: transparent;
+    border: none;
   }
 
   .bento-grid .card:nth-child(2) .app-features-grid {
